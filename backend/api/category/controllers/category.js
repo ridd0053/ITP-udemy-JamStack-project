@@ -5,8 +5,4 @@
  * to customize this controller
  */
 
-module.exports = {
-    async hello(ctx) {
-        return "Hello World!";
-    },
-};
+module.exports = {};
