@@ -119,7 +119,7 @@ export default function Header({ categories }) {
     {icon: menu, alt: 'menu', visible: matchesMD, onClick: () => setDrawerOpen(true)}
 ]
   return (
-    <AppBar color="transparent" elevation={0}>
+    <AppBar color="transparent" elevation={0} position="static">
       <Toolbar>
         <Button 
         component={Link}

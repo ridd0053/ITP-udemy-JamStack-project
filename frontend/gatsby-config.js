@@ -1,3 +1,6 @@
+// Gatsby will search for enviroment file
+require("dotenv").config();
+
 module.exports = {
   siteMetadata: {
     title: `Gatsby Default Starter`,

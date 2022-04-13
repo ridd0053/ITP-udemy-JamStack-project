@@ -101,13 +101,13 @@ export default function Footer() {
                 <Grid item>
                 <Grid container direction="column" alignItems="center">
                     {socialMedia.map(platform => (
-                    <Grid item>
+                    <Grid item key={platform.alt}>
                     <IconButton 
                     classes={{root: classes.icon}} 
                     component="a" 
                     href={platform.link}
                     disableRipple
-                    key={platform.alt}>
+                    >
                     <img src={platform.icon} alt={platform.alt} />
                     </IconButton>
                     </Grid>
