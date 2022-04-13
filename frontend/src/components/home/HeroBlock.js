@@ -62,9 +62,9 @@ export default function HeroBlock() {
               options={defaultOptions}
               width={
                 matchesXS
-                  ? "10rem"
-                  : matchesMD
                   ? "20rem"
+                  : matchesMD
+                  ? "25rem"
                   : matchesLG
                   ? "30rem"
                   : "40rem"
