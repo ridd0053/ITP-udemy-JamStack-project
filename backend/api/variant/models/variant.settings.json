@@ -39,8 +39,18 @@
       "required": true
     },
     "product": {
-      "via": "variants",
-      "model": "product"
+      "model": "product",
+      "via": "variants"
+    },
+    "ColorLabel": {
+      "type": "enumeration",
+      "enum": [
+        "White",
+        "Black",
+        "Tan",
+        "Red",
+        "Green"
+      ]
     }
   }
 }

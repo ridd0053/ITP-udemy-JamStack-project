@@ -20,6 +20,20 @@ exports.createPages = async ({ graphql, actions }) => {
             strapiId
             name
             description
+            filterOptions {
+              Size {
+                label
+                checked
+              }
+              Style {
+                label
+                checked
+              }
+              Color {
+                label
+                checked
+              }
+            }
           }
         }
       }
@@ -54,6 +68,7 @@ exports.createPages = async ({ graphql, actions }) => {
           name: category.node.name,
           description: category.node.description,
           id: category.node.strapiId,
+          filterOptions: category.node.filterOptions
         },
       })
     });
