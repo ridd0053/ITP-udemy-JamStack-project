@@ -72,14 +72,14 @@ const buttons = [
 return (
     <Grid
       container
-      justify="space-around"
+      justifyContent="space-around"
       classes={{ root: classes.container }}
     >
       {buttons.map(button => (
         <Grid item key={button.label}>
           <Grid
             container alignItems="center"
-            justify="center" direction="column"
+            justifyContent="center" direction="column"
             classes={{ root: classes.button }}
             component={button.link ? Link : "a"}
             to={button.link ? button.link : undefined}

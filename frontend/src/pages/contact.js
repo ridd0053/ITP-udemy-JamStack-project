@@ -238,13 +238,13 @@ const ContactPage = () => {
   ]
   return (
   <Layout>
-   <Grid container justify="space-around" alignItems="center" classes={{root: classes.mainContainer}}
+   <Grid container justifyContent="space-around" alignItems="center" classes={{root: classes.mainContainer}}
      direction={matchesMD ? "column": "row"}>
      <Grid item classes={{root: classes.formWrapper}}>
        {/* Contact form */}
        <Grid container 
        direction="column" 
-       justify="space-between"
+       justifyContent="space-between"
        alignItems="center"
        classes={{root: classes.formContainer}}>
           <Grid item classes={{root: clsx(classes.titleContainer, classes.blockContainer)}}>
@@ -327,7 +327,7 @@ const ContactPage = () => {
        <Grid
             container
             direction="column"
-            justify="space-between"
+            justifyContent="space-between"
             classes={{ root: classes.infoContainer }}>
             {info.map((section, i) => (
               <Grid

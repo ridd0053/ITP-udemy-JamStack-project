@@ -4,6 +4,7 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import ButtonGroup from "@material-ui/core/ButtonGroup"
 import Button from "@material-ui/core/Button"
+import  useMediaQuery  from "@material-ui/core/useMediaQuery"
 import { makeStyles } from "@material-ui/core/styles"
 
 import background from "../../images/toolbar-background.svg"
@@ -17,9 +18,15 @@ const useStyles = makeStyles(theme => ({
     descriptionContainer: {
         backgroundColor: theme.palette.primary.main,
         height: '15rem',
-        width: '60rem',
+        width: '60%',
         borderRadius: 25,
-        padding: '1rem'
+        padding: '1rem',
+        [theme.breakpoints.down('md')]: {
+            width: "100%",
+        },
+        [theme.breakpoints.down('sm')]: {
+            borderRadius: 0,
+        }
     },
     mainContainer: {
         padding: '3rem',
@@ -28,6 +35,9 @@ const useStyles = makeStyles(theme => ({
         backgroundPostion: 'center',
         backgroundRepeat: 'no-repeat',
         position: "relative",
+        [theme.breakpoints.down('sm')]: {
+            padding: '3rem 0',
+        }
     },
     button: {
         border: `2px solid ${theme.palette.primary.main}`,
@@ -51,11 +61,25 @@ const useStyles = makeStyles(theme => ({
         bottom: 0,
         marginRight: "3rem",
         marginBottom: "3rem",
+        [theme.breakpoints.down('md')]: {
+            position: "relative",
+            display:"flex",
+            alignSelf: 'flex-end',
+            marginTop: '3rem',
+            marginRight: 0,
+            marginBottom: 0,
+
+        },
+        [theme.breakpoints.down('sm')]: {
+            marginRight: "1.5rem",
+        }
     }
 }))
 
 export default function DescriptionContainer({ name, description, layout, setLayout, setPage }) {
     const classes = useStyles()
+
+    const matchesMD = useMediaQuery(theme => theme.breakpoints.down("md"))
 
     const  changeLayout = (option) => {
         setPage(1)
@@ -63,9 +87,14 @@ export default function DescriptionContainer({ name, description, layout, setLay
     }
 
     return  (
-        <Grid item container classes={{root: classes.mainContainer}} justify="center">
+        <Grid item 
+        container 
+        classes={{root: classes.mainContainer}} 
+        justifyContent="center"
+        direction={matchesMD ? "column" : "row"}
+        alignItems={matchesMD ? "center" : undefined}>
             <Grid item classes={{root: classes.descriptionContainer}}>
-                <Typography align="center" variant="h4" paragraph gutterBottom>
+                <Typography align="center" variant="h4">
                     {name}
                 </Typography>
                 <Typography align="center" variant="body1" classes={{root: classes.description}}>

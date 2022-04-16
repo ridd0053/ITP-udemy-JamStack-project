@@ -2,6 +2,8 @@ import React, { useState }  from "react"
 import clsx from 'clsx'
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
+import useMediaQuery  from "@material-ui/core/useMediaQuery"
+import { navigate } from "gatsby"
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -20,11 +22,19 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        [theme.breakpoints.down('xs')]: {
+            height: '20rem',
+            width: '20rem',
+        },
 
     },
     product: {
         height: '20rem',
-        width: '20rem'
+        width: '20rem',
+        [theme.breakpoints.down('xs')]: {
+            height: '15rem',
+            width: '15rem',
+        },
     },
     productNameContainer: {
         backgroundColor: theme.palette.primary.main,
@@ -33,7 +43,10 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: '-0.17rem'
+        marginTop: '-0.17rem',
+        [theme.breakpoints.down('xs')]: {
+            width: '20rem',
+        },
     },
     invisibility: {
         visibility: 'hidden',
@@ -61,7 +74,13 @@ export default function ProductFrameGrid({
     setSelectedSize, 
     setSelectedColor }) {
     const classes = useStyles()
+
+    // To open up the quickview for website
     const [open, setOpen] = useState(false)
+    const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
+    if( matchesMD && open) {
+        setOpen(false)
+    }
 
     const imageIndex = colorIndex(product, variant, selectedColor)
 
@@ -72,7 +91,10 @@ export default function ProductFrameGrid({
     return  (
         <Grid item classes={{root: clsx(classes.frameContainer,
             {[classes.invisibility]: open === true})}}>
-            <Grid container direction="column" onClick={() => setOpen(true)}>
+            <Grid container direction="column" 
+            onClick={() => matchesMD ? 
+            navigate(`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`) :
+            setOpen(true) }>
                 <Grid item classes={{root: classes.frame}}>
                     <img src={imageURL} alt={product.node.name} 
                     className={classes.product} />

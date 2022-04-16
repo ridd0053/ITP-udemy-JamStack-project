@@ -2,14 +2,26 @@ import React from "react"
 import Grid from "@material-ui/core/Grid"
 import IconButton from "@material-ui/core/IconButton"
 import Chip  from "@material-ui/core/Chip"
+import useMediaQuery  from "@material-ui/core/useMediaQuery"
 
 
 import sort from '../../images/sort.svg'
 import close from '../../images/close-outline.svg'
 
+import { makeStyles } from "@material-ui/core/styles"
+
+
+const useStyles = makeStyles(theme => ({
+    chipContainer: {
+        [theme.breakpoints.down('md')]: {
+            margin: "0.5rem",
+        }
+    }
+}))
 
 export default function Sort({ setOption }) {
-    
+    const classes = useStyles()
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
     const sortOptions = [
         {label: "A-Z"},
         {label: "Z-A"},
@@ -20,7 +32,7 @@ export default function Sort({ setOption }) {
         {label: "REVIEWS"},
     ]
     return  (
-      <Grid item container justify="space-between" alignItems="center">
+      <Grid item container justifyContent="space-between" alignItems="center">
           <Grid item>
                 <IconButton onClick={() => setOption(null)}>
                     <img src={sort} alt="sort" />
@@ -28,9 +40,9 @@ export default function Sort({ setOption }) {
           </Grid>
           <Grid item xs>
               {/* with the xs the element will take as much up as it can */}
-              <Grid container justify="space-around">
+              <Grid container direction={matchesXS ? "column" : "row"} alignItems={matchesXS ? "center" : undefined} justifyContent="space-around">
                     {sortOptions.map(option => (
-                        <Grid item key={option.label}>
+                        <Grid item key={option.label} classes={{root: classes.chipContainer}}>
                             <Chip label={option.label}/>
                         </Grid>
                     ))}

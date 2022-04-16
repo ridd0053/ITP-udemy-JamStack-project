@@ -38,7 +38,7 @@ export default function FunctionContainer({ filterOptions, options, setOptions }
             default:
                 const items = [{icon: filter, alt:"filter"}, {icon: sort, alt:"sort"}]
                 return (
-                    <Grid item container justify="space-around" alignItems="center">
+                    <Grid item container justifyContent="space-around" alignItems="center">
                         {items.map(item => (
                             <Grid item key={item.alt}>
                                 <IconButton onClick={() => setOptions(item.alt)}>

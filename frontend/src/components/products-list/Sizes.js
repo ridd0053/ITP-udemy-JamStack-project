@@ -38,7 +38,7 @@ export default function Sizes({ sizes, selectedSize, setSelectedSize }) {
    }
 
     return  (
-       <Grid item container justify="space-between">
+       <Grid item container justifyContent="space-between">
            {actualSizes.map(size => (
             <Grid item key={size}>
                 <Button onClick={() => setSelectedSize(size) } 

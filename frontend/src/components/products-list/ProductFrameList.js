@@ -1,9 +1,8 @@
-import React, { useState }  from "react"
+import React from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Chip from '@material-ui/core/Chip'
 import { Link } from "gatsby"
-
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -29,6 +28,12 @@ const useStyles = makeStyles(theme => ({
         height: '100%',
         width: '100%',
         padding: '1rem',
+        [theme.breakpoints.down('md')]: {
+            height: '50%',
+        },
+        [theme.breakpoints.down('sm')]: {
+            height: '26rem',
+        },
     },
     productImage: {
         height: '20rem', 
@@ -65,7 +70,7 @@ export default function ProductFrameList({
 
     return  (
         <Grid item container>
-            <Grid item xs={9} container alignItems="center" justify="space-around" classes={{root: classes.frame}}>
+            <Grid item lg={9} container alignItems="center" justifyContent="space-around" classes={{root: classes.frame}}>
                 {images.slice(0, 4).map(image => (
                     <Grid item key={image.url} component={Link} to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`}>
                         <img src={process.env.GATSBY_STRAPI_URL + image.url} alt={image.url}
@@ -73,10 +78,10 @@ export default function ProductFrameList({
                     </Grid>
                 ))}
             </Grid>
-            <Grid item xs={3} 
+            <Grid item lg={3} 
             container 
             direction="column"
-            justify="space-between" 
+            justifyContent="space-between" 
             classes={{root: classes.info}}>
                 <Grid item container direction="column"
                 component={Link} 

@@ -111,12 +111,12 @@ export default function QuickView({ open,
                         to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`} 
                         />
                     </Grid>
-                    <Grid item container justify="center" classes={{root: classes.toolbar}}>
+                    <Grid item container justifyContent="center" classes={{root: classes.toolbar}}>
                         <Grid item classes={{root: classes.infoItem}}>
                             <Grid container 
                             direction="column" 
                             classes={{root: classes.infoContainer}} 
-                            justify="space-between"
+                            justifyContent="space-between"
                             component={Link} 
                             to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`} >
                                 <Grid item>

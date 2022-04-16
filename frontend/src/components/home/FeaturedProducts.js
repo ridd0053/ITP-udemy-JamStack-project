@@ -128,7 +128,7 @@ export default function FeaturedProducts() {
   
   return (
   <Grid container direction="column" 
-  justify={matchesMD ? "space-between" : "center"} 
+  justifyContent={matchesMD ? "space-between" : "center"} 
   classes={{root: classes.background}}>
       {data.allStrapiProduct.edges.map(({node}, index) =>{
       const alignment = matchesMD ? "center" :
@@ -137,7 +137,7 @@ export default function FeaturedProducts() {
       return (
         <Grid item container
         classes={{root: classes.productContainer}} 
-        justify={alignment}
+        justifyContent={alignment}
         alignItems="center" 
         key={node.strapiId}>
         <IconButton

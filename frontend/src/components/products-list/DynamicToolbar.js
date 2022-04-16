@@ -11,7 +11,7 @@ const useStyles = makeStyles(theme => ({
         border: `5px solid ${theme.palette.primary.main}`,
         borderRadius: 25,
         height: 'auto',
-        width: '95%',
+        width: '96%',
         marginBottom: '5rem'
     }
 }))

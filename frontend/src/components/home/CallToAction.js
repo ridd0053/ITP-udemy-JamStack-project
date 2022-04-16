@@ -49,7 +49,7 @@ export default function CallToAction() {
     return (
         <Grid
           container
-          justify="space-around"
+          justifyContent="space-around"
           alignItems="center"
           classes={{ root: classes.container }}
           direction={matchesMD ? "column" : "row"}
@@ -74,7 +74,7 @@ export default function CallToAction() {
               <Grid
                 item
                 container
-                justify={matchesMD ? "center" : undefined}
+                justifyContent={matchesMD ? "center" : undefined}
                 classes={{ root: classes.buttonContainer }}
               >
                 <Grid item>

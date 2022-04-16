@@ -19,6 +19,13 @@ const useStyles = makeStyles(theme => ({
     },
     checkbox: {
         color: "#fff"
+    },
+    optionsContainer: {
+        [theme.breakpoints.down('xs')]: {
+           "& > :not(:last-child)": {
+            marginBottom: "2rem",
+           },
+        },
     }
 }))
 
@@ -26,7 +33,7 @@ export default function Filter({ setOption, filterOptions }) {
     const classes = useStyles()
     console.log(filterOptions)
     return  (
-      <Grid classes={{root: classes.mainContainer}} item container justify="space-between" alignItems="center">
+      <Grid classes={{root: classes.mainContainer}} item container justifyContent="space-between" alignItems="center">
           <Grid item>
                 <IconButton onClick={() => setOption(null)}>
                     <img src={filter} alt="filter" />
@@ -34,7 +41,7 @@ export default function Filter({ setOption, filterOptions }) {
           </Grid>
           <Grid item xs>
               {/* with the xs the element will take as much up as it can */}
-              <Grid container justify="space-around">
+              <Grid container justifyContent="space-around" classes={{root: classes.optionsContainer}}>
                     {Object.keys(filterOptions).filter(option => 
                     filterOptions[option] !== null).map(option => (
                         <Grid item key={option}>

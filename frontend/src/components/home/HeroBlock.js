@@ -35,7 +35,7 @@ export default function HeroBlock() {
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down("xs"))
 
     return (
-        <Grid container justify="space-around" alignItems="center">
+        <Grid container justifyContent="space-around" alignItems="center">
           <Grid item classes={{ root: classes.textContainer }}>
             <Grid container direction="column">
               <Grid item>
