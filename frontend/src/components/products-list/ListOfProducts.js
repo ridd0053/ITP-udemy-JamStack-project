@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ListOfProducts({ products, layout, page, productsPerPage }) {
+export default function ListOfProducts({ products, content, layout, page, productsPerPage }) {
     const classes = useStyles({layout})
     const matchesSM = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
@@ -77,12 +77,6 @@ export default function ListOfProducts({ products, layout, page, productsPerPage
         setSelectedSize={setSelectedSize}
          />
     }
-
-    var content = []
-    products.map((product, i) => 
-    product.node.variants.map(variant => 
-        content.push({product: i, variant})))
-
 
     return  (
         <Grid item 

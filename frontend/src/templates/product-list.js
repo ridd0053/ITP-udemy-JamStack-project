@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Fab from "@material-ui/core/Fab"
 import Pagination from "@material-ui/lab/Pagination"
 import Grid from "@material-ui/core/Grid"
@@ -44,13 +44,15 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function ProductList({
-  pageContext: { filterOptions, name, description },
+  pageContext: { filterOptions: options, name, description },
   data: {
     allStrapiProduct: { edges: products },
   },
 }) {
   const classes = useStyles()
   const [layout, setLayout] = useState("grid")
+  const [filterOptions, setFilterOptions] = useState(options)
+
   const [page, setPage] = useState(1)
   const scrollRef = useRef(null)
 
@@ -58,12 +60,68 @@ export default function ProductList({
     scrollRef.current.scrollIntoView({ behavior: "smooth" })
   }
 
+  useEffect(() => {
+    setPage(1)
+  }, [filterOptions, layout])
+
   const productsPerPage = layout === "grid" ? 16 : 6
   var numVariants = 0
 
-  products.map(product => (numVariants += product.node.variants.length))
+  var content = []
+  products.map((product, i) => 
+  product.node.variants.map(variant => 
+      content.push({product: i, variant})))
 
-  const numPages = Math.ceil(numVariants / productsPerPage)
+  var isFiltered = false;
+  var filters = {}
+  var filteredProducts = []
+      Object.keys(filterOptions).filter(option => filterOptions[option] !== null).map(
+          option => {
+              filterOptions[option].forEach(value => {
+                  if (value.checked) {
+                      isFiltered = true
+
+                      if(filters[option] === undefined) {
+                          filters[option] = []
+                      }
+                      if( !filters[option].includes(value) ) {
+                          filters[option].push(value)
+                      }
+                      content.forEach(item => {
+                          if (option === 'Color' ) {
+                              if(item.variant.ColorLabel === value.label && !filteredProducts.includes(item)) {
+                                  filteredProducts.push(item)
+                              }
+                          } else if (item.variant[option.toLocaleLowerCase()] === value.label && !filteredProducts.includes(item)) {
+                              filteredProducts.push(item)
+                          }
+                      }) 
+                  }
+              })
+          })
+
+  Object.keys(filters).forEach(filter => {
+      filteredProducts = filteredProducts.filter( item => {
+          let valid
+          filters[filter].some(value => {
+              console.log({item: item.variant[filter.toLocaleLowerCase()], value: value.label})
+              if(filter === "Color") {
+                  if (item.variant.ColorLabel === value.label ) {
+                      valid = item
+                  }
+              } else if ( item.variant[filter.toLocaleLowerCase()] === value.label) {
+                  valid = item
+              }
+          })
+
+          return valid
+      } )
+  })
+  if( isFiltered ) {
+      content= filteredProducts;
+  }
+
+  const numPages = Math.ceil(content.length / productsPerPage)
 
   return (
     <Layout>
@@ -71,17 +129,19 @@ export default function ProductList({
         <div ref={scrollRef} />
         <DynamicToolbar
           filterOptions={filterOptions}
+          setFilterOptions={setFilterOptions}
           name={name}
           description={description}
           layout={layout}
           setLayout={setLayout}
-          setPage={setPage}
         />
         <ListOfProducts
           page={page}
           productsPerPage={productsPerPage}
           layout={layout}
           products={products}
+          content={content}
+          filterOptions={filterOptions}
         />
         <Pagination
           count={numPages}
@@ -114,6 +174,7 @@ export const query = graphql`
             price
             size
             style
+            ColorLabel
             images {
               url
             }

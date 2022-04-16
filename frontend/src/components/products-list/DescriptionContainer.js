@@ -76,13 +76,12 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function DescriptionContainer({ name, description, layout, setLayout, setPage }) {
+export default function DescriptionContainer({ name, description, layout, setLayout }) {
     const classes = useStyles()
 
     const matchesMD = useMediaQuery(theme => theme.breakpoints.down("md"))
 
     const  changeLayout = (option) => {
-        setPage(1)
         setLayout(option)
     }
 
