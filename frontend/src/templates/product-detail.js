@@ -32,14 +32,19 @@ export default function ProductDetail({
 
 }) {
     const classes = useStyles()
-    const [selectedVariant, setSelectedVariant] = useState(0) // index of variant
-    const [selectedImage, setSelectedImage] = useState(0) // To change the images
-    const [stock, setStock] = useState(null)
-    
 
     const params = new URLSearchParams(window.location.search)
     const color = params.get("color")
     const style = params.get("style")
+
+    const findIndexVariantCriteria = variant => variant.style === style && variant.color === color
+
+    const [selectedVariant, setSelectedVariant] = useState(variants.findIndex(variant => findIndexVariantCriteria(variant))) // index of variant
+    const [selectedImage, setSelectedImage] = useState(0) // To change the images
+    const [stock, setStock] = useState(null)
+    
+
+
 
     const { loading, error, data } = useQuery(GET_DETAILS, {
         variables: { id }
@@ -47,9 +52,9 @@ export default function ProductDetail({
 
   
     useEffect(() => {
-        const styledVariant = variants.filter(variant => variant.style === style && variant.color === color)[0]
+        const styledVariant = variants.filter(variant => findIndexVariantCriteria(variant))[0]
         const variantIndex = variants.indexOf(styledVariant)
-        setSelectedVariant(variantIndex)  
+        setSelectedVariant(variantIndex)
     }, [color, style])
 
 
@@ -62,13 +67,11 @@ export default function ProductDetail({
             if (!recentlyViewed.some(product => product?.node?.name === name && product.selectedVariant === selectedVariant)) {
                 recentlyViewed.push({...product, selectedVariant: selectedVariant})
             }
-           
-            
         } else {
             recentlyViewed = [ {...product, selectedVariant: selectedVariant} ]
         }
         window.localStorage.setItem("recentlyViewed", JSON.stringify(recentlyViewed))
-        
+
     }    , [selectedVariant])
 
     useEffect(() => {

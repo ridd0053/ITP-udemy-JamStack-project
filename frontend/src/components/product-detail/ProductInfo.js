@@ -112,17 +112,15 @@ export const getStockDisplay = (stock, variant) => {
         case undefined:
         case null:
              return "Loading inventory"
-            break;
         case -1:
             return "Error loading inventory"
-            break;
         default:
             if(stock[variant].qty === 0) {
                 return "Out of stock"
             }else {
                 return `${stock[variant].qty} currently in stock`
             }
-            break;  
+
     }
 }
 
@@ -131,16 +129,21 @@ export default function ProductInfo({ name, description, variants, selectedVaria
 
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
-    const [selectedSize, setSelectedSize] = useState(null);
+    
+
+    const [selectedSize, setSelectedSize] = useState(variants[selectedVariant].size);
     const [selectedColor, setSelectedColor] = useState(null);
 
     const imageIndex = colorIndex({node: {variants} }, variants[selectedVariant], selectedColor)
     const sizes = []
     const colors = []
 
+
     variants.map(variant => {
         sizes.push(variant.size)
-        if(!colors.includes(variant.color)) {
+        if(!colors.includes(variant.color) 
+        && variant.size === selectedSize 
+        && variant.style === variants[selectedVariant].style) {
             colors.push(variant.color)
         }
     })
@@ -150,6 +153,14 @@ export default function ProductInfo({ name, description, variants, selectedVaria
             setSelectedVariant(imageIndex)
         }
     }, [imageIndex])
+
+    useEffect(() => {
+        setSelectedColor(null)
+        const newVariant = variants.find(variant => variant.size === selectedSize 
+            && variant.style === variants[selectedVariant].style
+            && variant.color === colors[0])
+        setSelectedVariant(variants.indexOf(newVariant))
+    }, [selectedSize])
 
     useEffect(() => {
         setSelectedImage(0)
