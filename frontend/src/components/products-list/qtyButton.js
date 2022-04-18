@@ -1,4 +1,4 @@
-import React, { useState }  from "react"
+import React, { useState, useEffect }  from "react"
 import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
@@ -51,12 +51,56 @@ const useStyles = makeStyles(theme => ({
         fontSize: '1.5rem',
         backgroundColor: theme.palette.secondary.main,
         padding: 0,
+    },
+    disabledButton: {
+        backgroundColor: theme.palette.common.grey,
+        "&:hover": {
+            backgroundColor: theme.palette.common.grey,
+        }
     }
 }))
 
-export default function QtyButton() {
+
+export default function QtyButton({stock, selectedVariant }) {
     const classes = useStyles()
     const [qty, setQty] = useState(1);
+    const [disableDownButton, setDisableDownButton] = useState(false);
+    const [disableUpButton, setDisableUpButton] = useState(false);
+
+
+    const handleChange = direction => {
+        if (qty === stock[selectedVariant].qty && direction === "up") {
+            return null
+        }
+        if (qty === 1 && direction === "down") {
+            return null
+        }
+        const newQty = direction === "up" ? qty + 1 : qty - 1 
+        
+        setQty(newQty)
+    }
+
+    useEffect(() => {
+        if(qty === 1 || stock === null || stock === -1) {
+            setDisableDownButton(true)
+        }
+        else if(qty === stock[selectedVariant].qty || stock === null || stock === -1) {
+            setDisableUpButton(true)
+        }
+        else {
+            setDisableDownButton(false)
+            setDisableUpButton(false)
+        }
+        }, [qty, stock, selectedVariant])
+
+    useEffect(() => {
+    if(stock === null || stock === -1) {
+        return undefined
+    }
+    else if(qty > stock[selectedVariant].qty) {
+        setQty(stock[selectedVariant].qty)
+    }
+    }, [stock, selectedVariant])
     return  (
         <Grid item>
             <ButtonGroup classes={{root: classes.mainGroup}}>
@@ -66,16 +110,20 @@ export default function QtyButton() {
                     </Typography>
                 </Button>
                 <ButtonGroup orientation="vertical">
-                    <Button 
-                    onClick={() => setQty(qty + 1 )}
-                    classes={{root: classes.editButtons}}>
+                    <Button
+                    onClick={() => handleChange("up")}
+                    classes={{root: clsx(classes.editButtons , {
+                        [classes.disabledButton]: disableUpButton
+                    })}}>
                         <Typography variant="h3" classes={{root: classes.qtyText}}>
                             +
                         </Typography>
                     </Button>
-                    <Button 
-                    onClick={() => setQty(qty - 1 )}
-                    classes={{root: clsx(classes.editButtons, classes.minusButton)}}>
+                    <Button
+                    onClick={() => handleChange("down")}
+                    classes={{root: clsx(classes.editButtons, classes.minusButton, {
+                        [classes.disabledButton]: disableDownButton
+                    })}}>
                         <Typography variant="h3" classes={{root: clsx(classes.qtyText, classes.minus)}}>
                             -
                         </Typography>

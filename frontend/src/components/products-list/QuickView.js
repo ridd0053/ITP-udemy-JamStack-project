@@ -153,7 +153,7 @@ export default function QuickView({ open,
                                 <Sizes sizes={sizes} selectedSize={selectedSize} setSelectedSize={setSelectedSize} />
                                 <Swatches colors={colors} selectedColor={selectedColor} setSelectedColor={setSelectedColor} />
                                 <span className={classes.qtyContainer}>
-                                    <QtyButton />
+                                    <QtyButton stock={stock} selectedVariant={selectedVariant} />
                                 </span>
                             </Grid>
                         </Grid>
