@@ -11,10 +11,18 @@ const useStyles = makeStyles(theme => ({
     selected: {
         height:'25rem',
         width:'25rem',
+        [theme.breakpoints.down("sm")]: {
+            height:'20rem',
+            width:'20rem',
+        },
     },
     small: {
         height:'5rem',
-        width:'5rem',  
+        width:'5rem',
+        [theme.breakpoints.down("sm")]: {
+            height:'3rem',
+            width:'3rem',
+        },  
     },
     imageItemContainer: {
         margin: '1rem',
@@ -24,7 +32,7 @@ const useStyles = makeStyles(theme => ({
 export default function ProductImages({ images, selectedImage, setSelectedImage }) {
     const classes = useStyles()
     return  (
-        <Grid item container direction="column" alignItems="center" xs={6}>
+        <Grid item container direction="column" alignItems="center" lg={6}>
             <Grid item>
                 {/* main image */}
                 <img 

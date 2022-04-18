@@ -4,9 +4,7 @@ import Typography from "@material-ui/core/Typography"
 import clsx from "clsx"
 import Button from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
-
-
-import { makeStyles } from "@material-ui/core/styles"
+import useMediaQuery  from "@material-ui/core/useMediaQuery"
 
 import factorite from '../../images/favorite.svg'
 import subscription from '../../images/subscription.svg'
@@ -17,6 +15,7 @@ import Swatches from "../products-list/Swatches"
 import QtyButton from "../products-list/qtyButton"
 import { colorIndex } from "../products-list/ProductFrameGrid"
 
+import { makeStyles } from "@material-ui/core/styles"
 
 
 const useStyles = makeStyles(theme => ({
@@ -24,6 +23,12 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: theme.palette.secondary.main,
         height: '45rem',
         width: '35rem',
+        [theme.breakpoints.down("md")]: {
+            width: "100%",
+        },
+        [theme.breakpoints.down("xs")]: {
+            height: "58rem",
+        }
     },
     center: {
         backgroundColor: theme.palette.primary.main,
@@ -31,6 +36,15 @@ const useStyles = makeStyles(theme => ({
         width: "45rem",
         position: "absolute",
         marginBottom: "4.5rem",
+        [theme.breakpoints.down("lg")]: {
+            width: "40rem",
+        },
+        [theme.breakpoints.down("md")]: {
+            width: "100%",
+        },
+        [theme.breakpoints.down("xs")]: {
+            height: "48rem",
+        }
     },
     icon: {
         height: '4rem',
@@ -38,7 +52,7 @@ const useStyles = makeStyles(theme => ({
         margin: "0.5rem 1rem"
     },
     sectionContainer: {
-        height: "calc(100% / 3)"
+        height: "calc(100% / 3)",
     },
     descriptionContainer: {
         backgroundColor: theme.palette.secondary.main,
@@ -57,14 +71,25 @@ const useStyles = makeStyles(theme => ({
     },
     chipContainer: {
         margin: "1rem",
+        [theme.breakpoints.down("xs")]: {
+            margin: "0",
+            marginBottom: "1.5rem",
+        }
     },
     chipRoot: {
         height: '3rem',
         width: 'auto',
         borderRadius: 50,
+        [theme.breakpoints.down("xs")]: {
+            height: "2rem"
+        }
+
     },
     chipLabel: {
-        fontSize: '2rem'
+        fontSize: '2rem',
+        [theme.breakpoints.down("xs")]: {
+            fontSize: "1.5rem"
+        }
     },
     stock: {
         color: "#fff",
@@ -84,6 +109,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function ProductInfo({ name, description, variants, selectedVariant, setSelectedVariant , selectedImage, setSelectedImage }) {
     const classes = useStyles()
+
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
@@ -111,7 +138,7 @@ export default function ProductInfo({ name, description, variants, selectedVaria
 
 
     return  (
-        <Grid item container justifyContent="center" alignItems="flex-end" direction="columns" xs={6}>
+        <Grid item container justifyContent="center" alignItems="flex-end" direction="columns" lg={6}>
             <Grid item container justifyContent="flex-end" classes={{root: classes.background}}>
                 <Grid item>
                     <img src={factorite} alt="add item to favorite" className={classes.icon} />
@@ -125,6 +152,7 @@ export default function ProductInfo({ name, description, variants, selectedVaria
                 item
                 container
                 justifyContent="space-between" 
+                direction={matchesXS ? "column" : "row"} 
                 classes={{root: clsx(classes.sectionContainer, classes.detailsContainer)}}>
                     <Grid item>
                         <Grid container direction="column">
@@ -155,7 +183,11 @@ export default function ProductInfo({ name, description, variants, selectedVaria
                         <Typography variant="body2">{description}</Typography>
                     </Grid>
                 </Grid>
-                <Grid item container justifyContent="space-between" alignItems="center" classes={{root: clsx(classes.sectionContainer, classes.actionsContainer)}}>
+                <Grid item container 
+                justifyContent={matchesXS ? "space-around" :"space-between"} 
+                alignItems={matchesXS ? "flex-start" : "center"}
+                direction={matchesXS ? "column" : "row"} 
+                classes={{root: clsx(classes.sectionContainer, classes.actionsContainer)}}>
                     <Grid item>
                         <Grid container direction="column">
                             <Grid item classes={{root: classes.sizesAndSwatches}}>

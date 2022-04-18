@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import Grid from "@material-ui/core/Grid"
+import useMediaQuery  from "@material-ui/core/useMediaQuery"
 
 import Layout from "../components/ui/layout";
 import ProductImages from "../components/product-detail/ProductImages";
@@ -13,10 +14,11 @@ import { Typography } from "@material-ui/core";
 const useStyles = makeStyles(theme => ({
     recentlyViewed: {
         margin:'5rem 0',
+        display:"flex",
+        justifyContent:"center",
     },
     recentlyViewedText: {
         color: theme.palette.secondary.main,
-        margin: '2rem 6rem'
     }
 }))
 
@@ -58,11 +60,13 @@ export default function ProductDetail({
         window.localStorage.setItem("recentlyViewed", JSON.stringify(recentlyViewed))
         
     }    , [selectedVariant])
+
+    const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
     
     return (
     <Layout>
         <Grid container direction="column">
-            <Grid item container>
+            <Grid item container direction={matchesMD ? "column" : "row"}>
                 <ProductImages 
                 images={variants[selectedVariant].images} 
                 selectedImage={selectedImage} 
@@ -78,7 +82,7 @@ export default function ProductDetail({
                 
             </Grid>
             <Grid item container classes={{root: classes.recentlyViewed}} >
-                <Typography classes={{root: classes.recentlyViewedText}} variant="h2">Recently Viewed products</Typography>
+                <Typography classes={{root: classes.recentlyViewedText}} variant="h3" align="center" gutterBottom>Recently Viewed products</Typography>
                 <RecentlyViewed products={JSON.parse(window.localStorage.getItem("recentlyViewed"))} />
             </Grid>
         </Grid>
