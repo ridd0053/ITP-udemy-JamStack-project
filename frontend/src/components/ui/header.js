@@ -75,7 +75,7 @@ export default function Header({ categories }) {
         (
           {node: {name,link}}
         )=>
-        (link || `/${name.toLowerCase()}`) ===pathname
+        (link || `/${name.toLowerCase()}`) === `/${pathname.split("/")[1]}`
       )[0]
     )
      return found === -1 ? false : found

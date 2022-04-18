@@ -28,6 +28,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Swatches({ colors, selectedColor, setSelectedColor }) {
     const classes = useStyles()
+
     return  (
        <Grid item container>
            {colors.sort().map(color => (

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Dialog  from "@material-ui/core/Dialog"
@@ -93,22 +93,25 @@ export default function QuickView({ open,
     price, 
     product, 
     sizes, 
-    colors, 
+    colors,
+    variant,
+    hasStyles, 
     selectedSize, 
     selectedColor, 
     setSelectedSize, 
     setSelectedColor }) {
     const classes = useStyles()
-   
+    
 
+    const productDetailLink = `/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}${`?color=${encodeURIComponent(selectedColor ? selectedColor : variant.color)}`}${hasStyles ? `&style=${variant.style}` : ''}`
+    
     return  (
         <Dialog classes={{ root: classes.dialogRoot, paper: classes.dialog}} open={open} onClose={() => setOpen(false)}>
             <DialogContent classes={{root: classes.selectedFrame}}>
                 <Grid container direction="column" alignItems="center">
-                    <Grid item>
-                        <img src={url} alt="product" className={classes.productImage} 
-                        component={Link} 
-                        to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`} 
+                    <Grid item component={Link} 
+                    to={productDetailLink}>
+                        <img src={url} alt="product" className={classes.productImage}  
                         />
                     </Grid>
                     <Grid item container justifyContent="center" classes={{root: classes.toolbar}}>
@@ -118,7 +121,7 @@ export default function QuickView({ open,
                             classes={{root: classes.infoContainer}} 
                             justifyContent="space-between"
                             component={Link} 
-                            to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`} >
+                            to={productDetailLink} >
                                 <Grid item>
                                     <Typography variant="h4">{name}</Typography>
                                     <Rating number={4} />

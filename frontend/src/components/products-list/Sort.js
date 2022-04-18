@@ -1,4 +1,5 @@
 import React from "react"
+import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import IconButton from "@material-ui/core/IconButton"
 import Chip  from "@material-ui/core/Chip"
@@ -16,21 +17,26 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down('md')]: {
             margin: "0.5rem",
         }
+    },
+    notActive: {
+        backgroundColor: theme.palette.primary.main,
     }
 }))
 
-export default function Sort({ setOption }) {
+export default function Sort({ setOption, sortOptions, setSortOptions }) {
     const classes = useStyles()
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
-    const sortOptions = [
-        {label: "A-Z"},
-        {label: "Z-A"},
-        {label: "NEWEST"},
-        {label: "OLDEST"},
-        {label: "PRICE ↑"},
-        {label: "PRICE ↓"},
-        {label: "REVIEWS"},
-    ]
+
+    const handleSort = i => {
+        const newOptions = [...sortOptions]
+        // deactives the old sort
+        newOptions.map(option => option.active = false)
+        // activates the new sort
+        newOptions[i].active = true
+
+        setSortOptions(newOptions)
+    }
+
     return  (
       <Grid item container justifyContent="space-between" alignItems="center">
           <Grid item>
@@ -39,11 +45,15 @@ export default function Sort({ setOption }) {
                 </IconButton>
           </Grid>
           <Grid item xs>
-              {/* with the xs the element will take as much up as it can */}
               <Grid container direction={matchesXS ? "column" : "row"} alignItems={matchesXS ? "center" : undefined} justifyContent="space-around">
-                    {sortOptions.map(option => (
+                    {sortOptions.map((option, i) => (
                         <Grid item key={option.label} classes={{root: classes.chipContainer}}>
-                            <Chip label={option.label}/>
+                            <Chip
+                            onClick={() => handleSort(i)}
+                            color={!option.active ? "primary" : "secondary"} 
+                            label={option.label} classes={{root: clsx({
+                                [classes.notActive]: !option.active
+                                })}} />
                         </Grid>
                     ))}
               </Grid>

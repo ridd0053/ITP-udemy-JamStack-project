@@ -36,8 +36,8 @@ const useStyles = makeStyles(theme => ({
         },
     },
     productImage: {
-        height: '20rem', 
-        width: '20rem',
+        height: '15rem', 
+        width: '15rem',
     },
     stock: {
         color: "#fff"
@@ -58,7 +58,8 @@ export default function ProductFrameList({
     variant,
     sizes, 
     colors, 
-    selectedSize, 
+    selectedSize,
+    hasStyles, 
     selectedColor, 
     setSelectedSize, 
     setSelectedColor
@@ -67,12 +68,12 @@ export default function ProductFrameList({
     const imageIndex = colorIndex(product, variant, selectedColor)
 
     const images = imageIndex !== -1 ? product.node.variants[imageIndex].images : variant.images
-
+    const productDetailLink = `/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}${`?color=${encodeURIComponent(selectedColor ? selectedColor : variant.color)}`}${hasStyles ? `&style=${variant.style}` : ''}`
     return  (
         <Grid item container>
             <Grid item lg={9} container alignItems="center" justifyContent="space-around" classes={{root: classes.frame}}>
                 {images.slice(0, 4).map(image => (
-                    <Grid item key={image.url} component={Link} to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`}>
+                    <Grid item key={image.url} component={Link} to={productDetailLink}>
                         <img src={process.env.GATSBY_STRAPI_URL + image.url} alt={image.url}
                         className={classes.productImage} />
                     </Grid>
@@ -85,7 +86,7 @@ export default function ProductFrameList({
             classes={{root: classes.info}}>
                 <Grid item container direction="column"
                 component={Link} 
-                to={`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`}>
+                to={productDetailLink}>
                     <Grid item>
                         <Typography variant="h4">
                             {product.node.name.split(" ")[0]}

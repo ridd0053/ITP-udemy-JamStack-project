@@ -67,6 +67,8 @@ export default function ListOfProducts({ products, content, layout, page, produc
             
         })
 
+        const hasStyles = !product.node.variants.some(variant => variant.style == null );
+
         return <Frame variant={variant} 
         product={product} 
         sizes={sizes} 
@@ -75,6 +77,7 @@ export default function ListOfProducts({ products, content, layout, page, produc
         selectedSize={selectedSize}
         setSelectedColor={setSelectedColor}
         setSelectedSize={setSelectedSize}
+        hasStyles={hasStyles}
          />
     }
 

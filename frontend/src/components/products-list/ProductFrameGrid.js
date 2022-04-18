@@ -26,6 +26,10 @@ const useStyles = makeStyles(theme => ({
             height: '20rem',
             width: '20rem',
         },
+        [theme.breakpoints.up('xs')]: {
+            height: ({ small }) => small ? "15rem" : undefined,
+            width: ({ small }) => small ? "15rem" : undefined,
+        }
 
     },
     product: {
@@ -35,6 +39,10 @@ const useStyles = makeStyles(theme => ({
             height: '15rem',
             width: '15rem',
         },
+        [theme.breakpoints.up('xs')]: {
+            height: ({ small }) => small ? "12rem" : undefined,
+            width: ({ small }) => small ? "12rem" : undefined,
+        }
     },
     productNameContainer: {
         backgroundColor: theme.palette.primary.main,
@@ -47,6 +55,9 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down('xs')]: {
             width: '20rem',
         },
+        [theme.breakpoints.up('xs')]: {
+            width: ({ small }) => small ? "15rem" : undefined,
+        }
     },
     invisibility: {
         visibility: 'hidden',
@@ -68,12 +79,15 @@ export default function ProductFrameGrid({
     product, 
     variant, 
     sizes, 
-    colors, 
+    colors,
+    hasStyles,
+    disableQuickView,
+    small, 
     selectedSize, 
     selectedColor, 
     setSelectedSize, 
     setSelectedColor }) {
-    const classes = useStyles()
+    const classes = useStyles({ small })
 
     // To open up the quickview for website
     const [open, setOpen] = useState(false)
@@ -88,12 +102,13 @@ export default function ProductFrameGrid({
         product.node.variants[imageIndex].images[0].url : 
         variant.images[0].url)
     const name = product.node.name.split(" ")[0]
+    const productDetailLink = `/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}${`?color=${encodeURIComponent(selectedColor ? selectedColor : variant.color)}`}${hasStyles ? `&style=${variant.style}` : ''}`
     return  (
         <Grid item classes={{root: clsx(classes.frameContainer,
             {[classes.invisibility]: open === true})}}>
             <Grid container direction="column" 
-            onClick={() => matchesMD ? 
-            navigate(`/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}`) :
+            onClick={() => matchesMD || disableQuickView ? 
+            navigate(productDetailLink) :
             setOpen(true) }>
                 <Grid item classes={{root: classes.frame}}>
                     <img src={imageURL} alt={product.node.name} 
@@ -112,11 +127,13 @@ export default function ProductFrameGrid({
             price={variant.price}
             product={product}
             sizes= {sizes} 
+            variant={variant}
             colors= {colors} 
             selectedSize= {selectedSize} 
             selectedColor= {selectedColor} 
             setSelectedSize={setSelectedSize} 
             setSelectedColor={setSelectedColor}
+            hasStyles={hasStyles}
             />
         </Grid>
     

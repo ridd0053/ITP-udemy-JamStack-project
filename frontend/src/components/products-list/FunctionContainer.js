@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function FunctionContainer({ filterOptions, setFilterOptions, options, setOptions }) {
+export default function FunctionContainer({ filterOptions, setFilterOptions, options, setOptions, sortOptions, setSortOptions }) {
     const classes = useStyles({options})
     
 
@@ -29,7 +29,7 @@ export default function FunctionContainer({ filterOptions, setFilterOptions, opt
         switch(options) {
             case"sort":
                 return (
-                    <Sort setOption={setOptions} />
+                    <Sort setOption={setOptions} sortOptions={sortOptions} setSortOptions={setSortOptions} />
                 )
             case"filter":
                 return (
