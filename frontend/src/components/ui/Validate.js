@@ -7,6 +7,7 @@ export default function validate(values) {
         phone: val =>  /^([0-9]{9,})$/.test(val),
         name: val => val.length > 0,
         message: val => val.length > 3,
+        password: val => /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(val),
     }
 
     const valid = {}
