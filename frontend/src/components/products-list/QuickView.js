@@ -16,6 +16,7 @@ import Rating from '../home/Rating'
 import Sizes from "./Sizes"
 import Swatches from "./Swatches"
 import QtyButton from "./qtyButton"
+import { getStockDisplay } from "../product-detail/ProductInfo"
 
 
 const useStyles = makeStyles(theme => ({
@@ -95,12 +96,17 @@ export default function QuickView({ open,
     sizes, 
     colors,
     variant,
+    stock,
+    imageIndex,
     hasStyles, 
     selectedSize, 
     selectedColor, 
     setSelectedSize, 
     setSelectedColor }) {
     const classes = useStyles()
+
+    const selectedVariant = imageIndex  === -1 ? product.node.variants.indexOf(variant) : imageIndex;
+    const stockDisplay = getStockDisplay(stock, selectedVariant)
     
 
     const productDetailLink = `/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}${`?color=${encodeURIComponent(selectedColor ? selectedColor : variant.color)}`}${hasStyles ? `&style=${variant.style}` : ''}`
@@ -127,7 +133,9 @@ export default function QuickView({ open,
                                     <Rating number={4} />
                                 </Grid>
                                 <Grid item>
-                                    <Typography variant="h3" classes={{root: classes.stock}}>12 currently in stock</Typography>
+                                    <Typography variant="h3" classes={{root: classes.stock}}>
+                                        {stockDisplay}
+                                    </Typography>
                                     <Button classes={{root: classes.detailButton}}>
                                         <Typography variant="h3" classes={{root: classes.details}}>
                                             Details

@@ -9,6 +9,7 @@ import DynamicToolbar from "../components/products-list/DynamicToolbar";
 import ListOfProducts from "../components/products-list/ListOfProducts";
 import { alphabetic, time, price } from "../components/products-list/SortFunctions"
 
+
 import { makeStyles } from "@material-ui/core/styles"
 
 
@@ -67,7 +68,7 @@ export default function ProductList({
 
   const [page, setPage] = useState(1)
   const scrollRef = useRef(null)
-
+ 
   const scroll = () => {
     scrollRef.current.scrollIntoView({ behavior: "smooth" })
   }
@@ -138,6 +139,7 @@ export default function ProductList({
   }
 
   const numPages = Math.ceil(content.length / productsPerPage)
+
 
   return (
     <Layout>

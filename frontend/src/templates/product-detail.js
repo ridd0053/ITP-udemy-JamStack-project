@@ -1,14 +1,18 @@
 import React, {useState, useEffect} from "react";
 import Grid from "@material-ui/core/Grid"
 import useMediaQuery  from "@material-ui/core/useMediaQuery"
+import { Typography } from "@material-ui/core";
+import { useQuery } from "@apollo/client";
+
 
 import Layout from "../components/ui/layout";
 import ProductImages from "../components/product-detail/ProductImages";
 import ProductInfo from "../components/product-detail/ProductInfo";
 import RecentlyViewed from "../components/product-detail/RecentlyViewed";
+import { GET_DETAILS } from "../Apollo/Queries";
 
 import { makeStyles } from "@material-ui/core/styles"
-import { Typography } from "@material-ui/core";
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -22,6 +26,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+
 export default function ProductDetail({ 
     pageContext: {product, name, id, category, description, variants} 
 
@@ -29,12 +34,17 @@ export default function ProductDetail({
     const classes = useStyles()
     const [selectedVariant, setSelectedVariant] = useState(0) // index of variant
     const [selectedImage, setSelectedImage] = useState(0) // To change the images
-    
+    const [stock, setStock] = useState(null)
     
 
     const params = new URLSearchParams(window.location.search)
     const color = params.get("color")
     const style = params.get("style")
+
+    const { loading, error, data } = useQuery(GET_DETAILS, {
+        variables: { id }
+    })
+
   
     useEffect(() => {
         const styledVariant = variants.filter(variant => variant.style === style && variant.color === color)[0]
@@ -61,6 +71,14 @@ export default function ProductDetail({
         
     }    , [selectedVariant])
 
+    useEffect(() => {
+        if ( error ) {
+            setStock(-1)
+        } else if(data) {
+            setStock(data.product.variants)
+        }
+    }, [error, data])
+
     const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
     
     return (
@@ -78,6 +96,7 @@ export default function ProductDetail({
                 selectedVariant={selectedVariant}
                 setSelectedVariant={setSelectedVariant}
                 setSelectedImage={setSelectedImage}
+                stock={stock}
                 />
                 
             </Grid>

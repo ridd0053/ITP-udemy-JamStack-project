@@ -107,7 +107,26 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function ProductInfo({ name, description, variants, selectedVariant, setSelectedVariant , selectedImage, setSelectedImage }) {
+export const getStockDisplay = (stock, variant) => {
+    switch( stock ) {
+        case undefined:
+        case null:
+             return "Loading inventory"
+            break;
+        case -1:
+            return "Error loading inventory"
+            break;
+        default:
+            if(stock[variant].qty === 0) {
+                return "Out of stock"
+            }else {
+                return `${stock[variant].qty} currently in stock`
+            }
+            break;  
+    }
+}
+
+export default function ProductInfo({ name, description, variants, selectedVariant, setSelectedVariant , stock, setSelectedImage }) {
     const classes = useStyles()
 
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
@@ -136,6 +155,7 @@ export default function ProductInfo({ name, description, variants, selectedVaria
         setSelectedImage(0)
     }, [selectedColor])
 
+    const stockDisplay = getStockDisplay(stock, selectedVariant)
 
     return  (
         <Grid item container justifyContent="center" alignItems="flex-end" direction="columns" lg={6}>
@@ -195,7 +215,9 @@ export default function ProductInfo({ name, description, variants, selectedVaria
                                 <Swatches colors={colors} selectedColor={selectedColor} setSelectedColor={setSelectedColor}  />
                             </Grid>
                             <Grid item>
-                                <Typography variant="h3" classes={{root: classes.stock}}>12 currently in stock</Typography>
+                                <Typography variant="h3" classes={{root: classes.stock}}>
+                                    {stockDisplay}
+                                </Typography>
                             </Grid>
                         </Grid>
                     </Grid>

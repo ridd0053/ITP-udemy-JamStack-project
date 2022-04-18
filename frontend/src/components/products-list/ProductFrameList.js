@@ -11,6 +11,7 @@ import Sizes from "./Sizes"
 import Swatches from "./Swatches"
 import QtyButton from "./qtyButton"
 import { colorIndex } from './ProductFrameGrid'
+import { getStockDisplay } from "../product-detail/ProductInfo"
 
 
 import frame from "../../images/product-frame-list.svg"
@@ -59,7 +60,8 @@ export default function ProductFrameList({
     sizes, 
     colors, 
     selectedSize,
-    hasStyles, 
+    hasStyles,
+    stock,
     selectedColor, 
     setSelectedSize, 
     setSelectedColor
@@ -69,6 +71,11 @@ export default function ProductFrameList({
 
     const images = imageIndex !== -1 ? product.node.variants[imageIndex].images : variant.images
     const productDetailLink = `/${product.node.category.name.toLowerCase()}/${product.node.name.split(" ")[0].toLowerCase()}${`?color=${encodeURIComponent(selectedColor ? selectedColor : variant.color)}`}${hasStyles ? `&style=${variant.style}` : ''}`
+    
+    const selectedVariant = imageIndex  === -1 ? product.node.variants.indexOf(variant) : imageIndex;
+    
+    const stockDisplay = getStockDisplay(stock, selectedVariant)
+
     return  (
         <Grid item container>
             <Grid item lg={9} container alignItems="center" justifyContent="space-around" classes={{root: classes.frame}}>
@@ -100,7 +107,7 @@ export default function ProductFrameList({
                     </Grid>
                     <Grid item>
                         <Typography variant="h3" classes={{root: classes.stock}}>
-                            12 currently in stock
+                            {stockDisplay}
                         </Typography>
                     </Grid>
                 </Grid>
