@@ -1,20 +1,20 @@
 import React, { useState }  from "react"
+import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
-import TextField from "@material-ui/core/TextField"
-import InputAdornment from "@material-ui/core/InputAdornment"
 import Typography from "@material-ui/core/Typography"
 
-import validate from "../ui/Validate"
+import Fields from "./Fields"
 
 import accountIcon from '../../images/account.svg'
 import EmailAdornment from '../../images/EmailAdornment'
 import passWordAdornment from '../../images/password-adornment.svg'
-import showPassword from '../../images/show-password.svg'
-import hidePassword from '../../images/hide-password.svg'
+import showPasswordIcon from '../../images/show-password.svg'
+import hidePasswordIcon from '../../images/hide-password.svg'
 import addUserIcon from '../../images/add-user.svg'
 import forgotPasswordIcon from '../../images/forgot.svg'
+import close from '../../images/close.svg'
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -28,12 +28,6 @@ const useStyles = makeStyles(theme => ({
     accountIcon: {
         marginTop: '2rem',
     },
-    textField: {
-        width: '20rem',
-    },
-    input: {
-        color: theme.palette.secondary.main,
-    },
     login: {
         width: '20rem',
         borderRadius: 50,
@@ -42,13 +36,22 @@ const useStyles = makeStyles(theme => ({
     facebookButton: {
         marginTop: '-1rem',
     },
+    passwordError: {
+        marginTop: 0,
+    },
     facebookText: {
         fontSize: '1.5rem',
-        fontWeight: 700,
+        fontWeight: 600,
         textTransform: 'none',
     },
     visibleIcon: {
         padding: 0,
+    },
+    close: {
+        paddingTop: 5
+    },
+    reset: {
+        marginTop: '-4rem'
     },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
@@ -61,23 +64,12 @@ const useStyles = makeStyles(theme => ({
 
 }))
 
-export default function Login({ 
-    setSelectedStep,
-    steps
-
- }) {
-    const classes = useStyles()
-    const [values, setValues] = useState({
-        email: "",
-        password: "",
-    })
-    const [errors, setErrors]  = useState({})
-    const [visible, setVisible]  = useState(false)
-
-    const fields ={
+export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisible) => (
+    {
         email: {
             helperText: "invalid email",
             placeholder: "Email",
+            hidden: hideEmail,
             startAdornment: (
                 <span className={classes.emailAdornment}>
                     <EmailAdornment />
@@ -88,12 +80,33 @@ export default function Login({
         password: {
             helperText: "Your password must be at least 8 characters and include one uppercase letter, one number and one special character",
             placeholder: "Password",
+            hidden: hidePassword,
             startAdornment: <img src={passWordAdornment} alt="password" />,
             endAdornment: (
-                    <img src={visible ? showPassword : hidePassword} alt={`${visible ? "Show" : "Hide"} Password`}/>
+                <IconButton classes={{root: classes.visibleIcon}} onClick={() => setVisible(!visible)}>
+                    <img src={visible ? showPasswordIcon : hidePasswordIcon} alt={`${visible ? "Show" : "Hide"} Password`}/>
+                </IconButton>
             ),
             type: visible ? "text" : "Password",
         },
+    }
+)
+
+export default function Login({ steps, setSelectedStep }) {
+    const classes = useStyles()
+    const [values, setValues] = useState({
+        email: "",
+        password: "",
+    })
+    const [errors, setErrors]  = useState({})
+    const [visible, setVisible]  = useState(false)
+    const [forgot, setForgot]  = useState(false)
+
+    const fields = EmailPassword(classes, false, forgot, visible, setVisible)
+
+    const navigateSignUp = () => {
+        const signUp = steps.find(step => step.label === "Sign Up")
+        setSelectedStep(steps.indexOf(signUp))
     }
 
     return  (
@@ -101,70 +114,44 @@ export default function Login({
             <Grid item classes={{root: classes.accountIcon}}>
                 <img src={accountIcon} alt="login page"/>
             </Grid>
-            {Object.keys(fields).map(field => {
-                const validateHelper = event => {
-                    const valid = validate({[field]: event.target.value})
-                    setErrors({...errors, [field]: !valid[field]})
-                }
-                return (
-                    <Grid item key={field}>
-                        <TextField 
-                        value={values[field]} 
-                        onChange={e => {
-                            if (errors[field]) {
-                                validateHelper(e)
-                            }
-                            setValues({ ...values, [field]: e.target.value })
-                        }}
-                        classes={{root: classes.textField}} 
-                        placeholder={fields[field].placeholder}
-                        type={fields[field].type}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                {fields[field].startAdornment}
-                            </InputAdornment>
-                        ),
-                        endAdornment: fields[field].endAdornment ? (
-                            <InputAdornment position="end">
-                                <IconButton 
-                                classes={{root: classes.visibleIcon}}
-                                onClick={() => setVisible(!visible)}>
-                                    {fields[field].endAdornment}
-                                </IconButton>
-                            </InputAdornment>
-                        ) : undefined , 
-                        classes: {input: classes.input}
-                        }}
-                        onBlur={e => validateHelper(e)}
-                        error={errors[field]}
-                        helperText={errors[field] && fields[field].helperText}
-
-                    />
-                </Grid>
-                )
-            })}
-     
+            <Fields fields={fields} 
+            errors={errors} 
+            setErrors={setErrors} 
+            values={values} 
+            setValues={setValues} />
             <Grid item>
-                <Button variant="contained" color="secondary" classes={{root: classes.login}}>
+                <Button variant="contained" color="secondary" classes={{root: clsx(classes.login, {
+                    [classes.reset] : forgot
+                })}}>
                     <Typography variant="h5">
-                        Login
+                        {forgot ? "Reset password" : "Login"}
                     </Typography>
                 </Button>
             </Grid>
+            {forgot ? null : (          
             <Grid item>
                 <Button classes={{root: classes.facebookButton}}>
-                    <Typography variant="h3" classes={{root: classes.facebookText}}>
+                    <Typography variant="h3" 
+                    classes={{root: clsx(classes.facebookText, {
+                        [classes.passwordError]: errors.password
+                    })}}>
                         Login with Facebook
                     </Typography>
                 </Button>
             </Grid>
+            )}
             <Grid item container justifyContent="space-between">
                 <Grid item>
-                    <img src={addUserIcon} alt="sign up"/>
+                    <IconButton onClick={navigateSignUp}>
+                        <img src={addUserIcon} alt="sign up"/>
+                    </IconButton>
                 </Grid>
-                <Grid item>
-                    <img src={forgotPasswordIcon} alt="forgot password"/>
+                <Grid item classes={{root: clsx({
+                    [classes.close]: forgot
+                })}}>
+                    <IconButton onClick={() => setForgot(!forgot)}>
+                        <img src={forgot ? close : forgotPasswordIcon} alt={forgot ? "back to login" : "forgot password"}/>
+                    </IconButton>
                 </Grid>
             </Grid>
         </>

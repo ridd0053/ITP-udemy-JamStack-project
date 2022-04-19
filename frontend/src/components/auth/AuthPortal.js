@@ -4,6 +4,8 @@ import Typography from "@material-ui/core/Typography"
 import  Paper  from "@material-ui/core/Paper"
 
 import Login from "./Login"
+import SignUp from "./SignUp"
+import Complete from "./Complete"
 
 
 import { makeStyles } from "@material-ui/core/styles"
@@ -33,7 +35,9 @@ export default function AuthPortal() {
     const [selectedStep, setSelectedStep] = useState(0)
 
     const steps = [
-        {component: Login, label:"Login"}
+        {component: Login, label:"Login"},
+        {component: SignUp, label:"Sign Up"},
+        {component: Complete, label:"Complete"},
     ]
 
     return  (

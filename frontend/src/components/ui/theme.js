@@ -80,7 +80,7 @@ const theme = createTheme({
                 fontSize: "1.5rem",
                 fontFamily: "Montserrat",
                 color: '#fff',
-                fontWeight: 500,
+                fontWeight: 400,
             },
         }
     }
