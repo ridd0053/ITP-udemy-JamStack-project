@@ -4,7 +4,7 @@ import Typography from "@material-ui/core/Typography"
 import clsx from "clsx"
 import Button  from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
-
+import axios from  "axios"
 
 import Fields from "./Fields"
 import { EmailPassword } from "./Login"
@@ -89,8 +89,20 @@ export default function SignUp({ steps, setSelectedStep }) {
             
      }
      const handleComplete = () => {
-         const complete = steps.find(step => step.label === "Complete")
-         setSelectedStep(steps.indexOf(complete))
+        axios.post(process.env.GATSBY_STRAPI_URL + '/auth/local/register', {
+            username: values.name,
+            email: values.email,
+            password: values.password
+        }).then(response => {
+            console.log("User profile", response.data.user)
+            console.log("JWT", response.data.jwt)
+
+            const complete = steps.find(step => step.label === "Complete")
+            setSelectedStep(steps.indexOf(complete))
+        }).catch(error => {
+            console.log(error)
+        })
+   
      }
 
     const nameField = {
@@ -103,6 +115,10 @@ export default function SignUp({ steps, setSelectedStep }) {
         }
     }
     const fields = info ? EmailPassword(classes, false, false, visible, setVisible) : nameField
+    
+    const disabeld = Object.keys(errors).some(error => errors[error] === true) 
+    || Object.keys(errors).length !== Object.keys(values).length
+    
     return  (
         <>
             <Grid item>
@@ -115,6 +131,7 @@ export default function SignUp({ steps, setSelectedStep }) {
             setValues={setValues} />
             <Grid item>
                 <Button
+                disabled={info && disabeld}
                 onClick={() => info ? handleComplete() : null} 
                 variant="contained" 
                 color="secondary" 

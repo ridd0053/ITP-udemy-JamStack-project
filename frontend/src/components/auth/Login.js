@@ -4,6 +4,7 @@ import Grid from "@material-ui/core/Grid"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
+import axios from  "axios"
 
 import Fields from "./Fields"
 
@@ -91,7 +92,6 @@ export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisi
         },
     }
 )
-
 export default function Login({ steps, setSelectedStep }) {
     const classes = useStyles()
     const [values, setValues] = useState({
@@ -109,6 +109,18 @@ export default function Login({ steps, setSelectedStep }) {
         setSelectedStep(steps.indexOf(signUp))
     }
 
+    const handleLogin = () => {
+        axios.post(process.env.GATSBY_STRAPI_URL + '/auth/local', {
+            identifier: values.email,
+            password: values.password,
+        }).then(response => {
+            console.log("User profile login", response.data.user)
+            console.log("JWT login", response.data.jwt)
+        })
+    }
+
+    const disabeld = Object.keys(errors).some(error => errors[error] === true) 
+    || Object.keys(errors).length !== Object.keys(values).length
     return  (
         <>
             <Grid item classes={{root: classes.accountIcon}}>
@@ -120,7 +132,12 @@ export default function Login({ steps, setSelectedStep }) {
             values={values} 
             setValues={setValues} />
             <Grid item>
-                <Button variant="contained" color="secondary" classes={{root: clsx(classes.login, {
+                <Button
+                disabled={!forgot && disabeld}
+                onClick={() => forgot ? null : handleLogin()} 
+                variant="contained" 
+                color="secondary" 
+                classes={{root: clsx(classes.login, {
                     [classes.reset] : forgot
                 })}}>
                     <Typography variant="h5">
