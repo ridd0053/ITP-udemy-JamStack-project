@@ -5,8 +5,10 @@ import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
 import axios from  "axios"
+import CircularProgress from "@material-ui/core/CircularProgress"
 
 import Fields from "./Fields"
+import { setUser, setSnackbar } from "../../Contexts/actions"
 
 import accountIcon from '../../images/account.svg'
 import EmailAdornment from '../../images/EmailAdornment'
@@ -92,7 +94,7 @@ export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisi
         },
     }
 )
-export default function Login({ steps, setSelectedStep }) {
+export default function Login({ steps, setSelectedStep, user, dispatchUser, dispatchFeedback }) {
     const classes = useStyles()
     const [values, setValues] = useState({
         email: "",
@@ -101,6 +103,9 @@ export default function Login({ steps, setSelectedStep }) {
     const [errors, setErrors]  = useState({})
     const [visible, setVisible]  = useState(false)
     const [forgot, setForgot]  = useState(false)
+    const [loading, setLoading] = useState(false)
+
+  
 
     const fields = EmailPassword(classes, false, forgot, visible, setVisible)
 
@@ -110,12 +115,18 @@ export default function Login({ steps, setSelectedStep }) {
     }
 
     const handleLogin = () => {
+        setLoading(true)
         axios.post(process.env.GATSBY_STRAPI_URL + '/auth/local', {
             identifier: values.email,
             password: values.password,
         }).then(response => {
-            console.log("User profile login", response.data.user)
-            console.log("JWT login", response.data.jwt)
+            setLoading(false)
+            dispatchUser(setUser({...response.data.user, jwt: response.data.jwt}))
+        }).catch(error => {
+            const { message } = error.response.data.message[0].messages[0]
+            setLoading(false)
+            console.log(error)
+            dispatchFeedback(setSnackbar({ status: "error", message,  }))
         })
     }
 
@@ -133,16 +144,19 @@ export default function Login({ steps, setSelectedStep }) {
             setValues={setValues} />
             <Grid item>
                 <Button
-                disabled={!forgot && disabeld}
+                disabled={loading || !forgot && disabeld}
                 onClick={() => forgot ? null : handleLogin()} 
                 variant="contained" 
                 color="secondary" 
                 classes={{root: clsx(classes.login, {
                     [classes.reset] : forgot
                 })}}>
-                    <Typography variant="h5">
-                        {forgot ? "Reset password" : "Login"}
-                    </Typography>
+                    {loading ? <CircularProgress /> : (
+                        <Typography variant="h5">
+                            {forgot ? "Reset password" : "Login"}
+                        </Typography>
+                    )}
+       
                 </Button>
             </Grid>
             {forgot ? null : (          

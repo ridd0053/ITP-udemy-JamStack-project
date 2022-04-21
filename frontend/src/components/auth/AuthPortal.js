@@ -3,7 +3,7 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import  Paper  from "@material-ui/core/Paper"
 
-import { UserContext } from "../../contexts"
+import { UserContext, FeedbackContext } from "../../contexts"
 
 import Login from "./Login"
 import SignUp from "./SignUp"
@@ -35,8 +35,9 @@ export default function AuthPortal() {
     const classes = useStyles()
 
     const [selectedStep, setSelectedStep] = useState(0)
-    const  {user, dispatchUser} = useContext(UserContext)
-    console.log(user)
+    const {user, dispatchUser} = useContext(UserContext)
+    const {feedback, dispatchFeedback} = useContext(FeedbackContext)
+    
 
     const steps = [
         {component: Login, label:"Login"},
@@ -50,7 +51,14 @@ export default function AuthPortal() {
                 <Paper elevation={6} classes={{root: classes.paper}}>
                     <Grid container direction="column" justifyContent="space-between"  alignItems="center" classes={{root: classes.inner}}>
                         {steps.map((Step, i) =>(
-                            selectedStep === i ? <Step.component setSelectedStep={setSelectedStep} steps={steps} key={Step.label} /> : null
+                            selectedStep === i ? <Step.component
+                            user={user} 
+                            dispatchUser={dispatchUser}
+                            feedback={feedback}
+                            dispatchFeedback={dispatchFeedback}
+                            setSelectedStep={setSelectedStep} 
+                            steps={steps} 
+                            key={Step.label} /> : null
                         ))}
                     </Grid>
                 </Paper>

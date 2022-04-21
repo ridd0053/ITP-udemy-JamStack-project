@@ -1,9 +1,7 @@
 import { SET_USER } from "./action-types";
 
 // action creator
-export const setUser = user => {
-    return {
+export const setUser = user => ({
         type: SET_USER,
-        payload: { user },
-    }
-}
+        payload: { user }, 
+    })
