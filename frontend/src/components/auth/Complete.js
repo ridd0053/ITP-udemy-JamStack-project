@@ -1,10 +1,11 @@
-import React, { useState }  from "react"
+import React, { useEffect, useContext }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button from "@material-ui/core/Button"
 
 import checkmark from '../../images/checkmark-outline.svg'
 import forward from '../../images/forward-outline.svg'
+import { setUser } from "../../Contexts/actions"
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -27,8 +28,15 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Complete() {
+export default function Complete({ user, dispatchUser }) {
     const classes = useStyles()
+
+    useEffect(() => {
+        //cleanup function --- only execute on component unmount
+        return () => {
+            dispatchUser(setUser({...user, onboarding: true}))
+        }
+    }, [])
 
     return  (
         <>

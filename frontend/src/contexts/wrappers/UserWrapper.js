@@ -19,7 +19,7 @@ export function UserWrapper({ children }) {
                     Authorization: `Bearer ${storedUser.jwt}`
                 }
             }).then(response => {
-                dispatchUser(setUser({...response.data, jwt: storedUser.jwt}))
+                dispatchUser(setUser({...response.data, jwt: storedUser.jwt, onboarding: true}))
             }).catch(error => {
                 console.error(error)
                 dispatchUser(setUser(defaultUser))

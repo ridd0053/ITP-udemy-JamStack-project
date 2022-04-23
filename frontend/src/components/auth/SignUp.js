@@ -25,9 +25,6 @@ const useStyles = makeStyles(theme => ({
         width: '11rem',
         marginTop: '5rem',
     },
-    textField: {
-        width: '20rem',
-    },
     input: {
         color: theme.palette.secondary.main,
     },
@@ -35,10 +32,16 @@ const useStyles = makeStyles(theme => ({
         width: '20rem',
         borderRadius: 50,
         marginTop: '-3rem',
+        [theme.breakpoints.down('xs')]: {
+            width: '15rem',
+        },
     },
     facebookText: {
         textTransform: "none",
         fontSize: '1.5rem',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '1.25rem',
+        },
     },
     navigation: {
         height: '4rem',
@@ -112,6 +115,7 @@ export default function SignUp({ steps, setSelectedStep, dispatchUser, dispatchF
    
      }
 
+ 
     const nameField = {
         name: {
             helperText: "you must enter a name",
@@ -139,7 +143,9 @@ export default function SignUp({ steps, setSelectedStep, dispatchUser, dispatchF
             <Grid item>
                 <Button
                 disabled={loading || info && disabeld}
-                onClick={() => info ? handleComplete() : null} 
+                component={!info ? "a" : undefined}
+                href={!info ? `${process.env.GATSBY_STRAPI_URL }/connect/facebook`: undefined}
+                onClick={() => info ? handleComplete() : null } 
                 variant="contained" 
                 color="secondary" 
                 classes={{root: clsx(classes.facebookSignUp, {

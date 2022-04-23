@@ -8,6 +8,7 @@ export default function validate(values) {
         name: val => val.length > 0,
         message: val => val.length > 3,
         password: val => /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(val),
+        confirmation: val => /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(val),
     }
 
     const valid = {}

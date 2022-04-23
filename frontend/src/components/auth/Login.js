@@ -1,4 +1,4 @@
-import React, { useState }  from "react"
+import React, { useState, useEffect }  from "react"
 import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import Button from "@material-ui/core/Button"
@@ -35,6 +35,9 @@ const useStyles = makeStyles(theme => ({
         width: '20rem',
         borderRadius: 50,
         textTransform: 'none',
+        [theme.breakpoints.down('xs')]: {
+            width: '15rem',
+        },
     },
     facebookButton: {
         marginTop: '-1rem',
@@ -55,6 +58,11 @@ const useStyles = makeStyles(theme => ({
     },
     reset: {
         marginTop: '-4rem'
+    },
+    buttonText: {
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '1.5rem',
+        },
     },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
@@ -92,6 +100,7 @@ export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisi
             ),
             type: visible ? "text" : "Password",
         },
+     
     }
 )
 export default function Login({ steps, setSelectedStep, user, dispatchUser, dispatchFeedback }) {
@@ -104,6 +113,7 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
     const [visible, setVisible]  = useState(false)
     const [forgot, setForgot]  = useState(false)
     const [loading, setLoading] = useState(false)
+    const [success, setSuccess] = useState(false)
 
   
 
@@ -121,7 +131,7 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
             password: values.password,
         }).then(response => {
             setLoading(false)
-            dispatchUser(setUser({...response.data.user, jwt: response.data.jwt}))
+            dispatchUser(setUser({...response.data.user, jwt: response.data.jwt, onboarding: true}))
         }).catch(error => {
             const { message } = error.response.data.message[0].messages[0]
             setLoading(false)
@@ -129,6 +139,32 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
             dispatchFeedback(setSnackbar({ status: "error", message,  }))
         })
     }
+
+    const handleForgot = () => {
+        setLoading(true)
+        axios.post(process.env.GATSBY_STRAPI_URL + '/auth/forgot-password', {
+            email: values.email,
+        }).then(response => {
+            setLoading(false)
+            setSuccess(true)
+            dispatchFeedback(setSnackbar({ status: "success", message: "Reset code sent"  }))
+            
+        }).catch(error => {
+            const { message } = error.response.data.message[0].messages[0]
+            setLoading(false)
+            console.log(error)
+            dispatchFeedback(setSnackbar({ status: "error", message }))
+        })
+
+    }
+
+    useEffect(() => {
+        if(!success) return 
+        const timer = setTimeout(() => {
+            setForgot(false)
+        }, 6000)
+        return () => clearTimeout(timer)
+    }, [success])
 
     const disabeld = Object.keys(errors).some(error => errors[error] === true) 
     || Object.keys(errors).length !== Object.keys(values).length
@@ -144,16 +180,16 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
             setValues={setValues} />
             <Grid item>
                 <Button
-                disabled={loading || !forgot && disabeld}
-                onClick={() => forgot ? null : handleLogin()} 
+                disabled={loading || (!forgot && disabeld)}
+                onClick={() => forgot ? handleForgot() : handleLogin()} 
                 variant="contained" 
                 color="secondary" 
                 classes={{root: clsx(classes.login, {
                     [classes.reset] : forgot
                 })}}>
                     {loading ? <CircularProgress /> : (
-                        <Typography variant="h5">
-                            {forgot ? "Reset password" : "Login"}
+                        <Typography variant="h5" classes={{root: classes.reset}}>
+                            {forgot ? "Forgot password" : "Login"}
                         </Typography>
                     )}
        
@@ -161,7 +197,10 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
             </Grid>
             {forgot ? null : (          
             <Grid item>
-                <Button classes={{root: classes.facebookButton}}>
+                <Button
+                component="a"
+                href={`${process.env.GATSBY_STRAPI_URL }/connect/facebook`}
+                classes={{root: classes.facebookButton}}>
                     <Typography variant="h3" 
                     classes={{root: clsx(classes.facebookText, {
                         [classes.passwordError]: errors.password
