@@ -188,7 +188,7 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
                     [classes.reset] : forgot
                 })}}>
                     {loading ? <CircularProgress /> : (
-                        <Typography variant="h5" classes={{root: classes.reset}}>
+                        <Typography variant="h5" classes={{root: classes.buttonText}}>
                             {forgot ? "Forgot password" : "Login"}
                         </Typography>
                     )}
