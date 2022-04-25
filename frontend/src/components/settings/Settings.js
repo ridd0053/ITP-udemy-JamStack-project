@@ -3,6 +3,8 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 
 import Details from "./Details"
+import Payments from "./Payments"
+import Location from "./Location"
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -15,8 +17,14 @@ export default function Settings() {
     const classes = useStyles()
 
     return  (
-        <Grid container>
-            <Details />
-        </Grid>
+        <>
+            <Grid container>
+                <Details />
+                <Payments />
+            </Grid>
+            <Grid container>
+                <Location />
+            </Grid>
+        </>
     )
 }

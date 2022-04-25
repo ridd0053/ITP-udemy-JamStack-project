@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
-import IconButton from "@material-ui/core/IconButton"
+import clsx from  'clsx'
 import { useSpring, useSprings, animated } from 'react-spring'
 import useResizeAware from 'react-resize-aware'
 
@@ -38,6 +38,15 @@ const useStyles = makeStyles(theme => ({
         height: '12rem',
         width: '12rem',
     },
+    button: {
+        backgroundColor: theme.palette.primary.main,
+    },
+    addHover: {
+        "&:hover": {
+            cursor: "pointer",
+            backgroundColor: theme.palette.secondary.main,
+        }
+    }
 }))
 
 const AnimatedButton = animated(Button)
@@ -129,13 +138,15 @@ export default function SettingsPortal() {
                 {springs.map((prop, i) => {
                     const button = buttons[i]
                     return (
-                    <Grid item key={i}>
-                        <AnimatedButton 
-                        variant="contained" 
-                        color="primary"
+                        <AnimatedGrid 
+                        item
+                        classes={{root: clsx(classes.button, {
+                            [classes.addHover]: !showComponent
+                        })}}
+                        key={i}
                         style={prop}
-                        onClick={() => handleClick(button.label)} >
-                            <AnimatedGrid style={styles} container direction="column">
+                        onClick={() => showComponent ? null : handleClick(button.label)} >
+                            <AnimatedGrid style={styles} container direction="column" alignItems="center" justifyContent="center">
                                 {selectedSetting === button.label && showComponent ? <button.component /> : (
                                  <>
                                     <Grid item>
@@ -149,8 +160,7 @@ export default function SettingsPortal() {
                                  </>
                                 )}
                             </AnimatedGrid>
-                        </AnimatedButton>
-                    </Grid>
+                        </AnimatedGrid>
                 )})}
             </Grid>
         </Grid>

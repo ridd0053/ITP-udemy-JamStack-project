@@ -12,9 +12,9 @@ import { setUser, setSnackbar } from "../../Contexts/actions"
 
 import accountIcon from '../../images/account.svg'
 import EmailAdornment from '../../images/EmailAdornment'
-import passWordAdornment from '../../images/password-adornment.svg'
-import showPasswordIcon from '../../images/show-password.svg'
-import hidePasswordIcon from '../../images/hide-password.svg'
+import PassWordAdornment from '../../images/PasswordAdornment'
+import ShowPasswordIcon from '../../images/ShowPassword'
+import HidePasswordIcon from '../../images/HidePassword'
 import addUserIcon from '../../images/add-user.svg'
 import forgotPasswordIcon from '../../images/forgot.svg'
 import close from '../../images/close.svg'
@@ -75,7 +75,7 @@ const useStyles = makeStyles(theme => ({
 
 }))
 
-export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisible) => (
+export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisible, isWhite) => (
     {
         email: {
             helperText: "invalid email",
@@ -83,7 +83,7 @@ export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisi
             hidden: hideEmail,
             startAdornment: (
                 <span className={classes.emailAdornment}>
-                    <EmailAdornment />
+                    <EmailAdornment color={isWhite ? "#fff" : null} />
                 </span>
             ),
             type: 'text',
@@ -92,10 +92,12 @@ export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisi
             helperText: "Your password must be at least 8 characters and include one uppercase letter, one number and one special character",
             placeholder: "Password",
             hidden: hidePassword,
-            startAdornment: <img src={passWordAdornment} alt="password" />,
+            startAdornment: (
+                <PassWordAdornment color={isWhite ? "#fff" : null} />
+            ),
             endAdornment: (
                 <IconButton classes={{root: classes.visibleIcon}} onClick={() => setVisible(!visible)}>
-                    <img src={visible ? showPasswordIcon : hidePasswordIcon} alt={`${visible ? "Show" : "Hide"} Password`}/>
+                    {visible ? <ShowPasswordIcon color={isWhite ? "#fff" : null}/> : <HidePasswordIcon color={isWhite ? "#fff" : null}/> } 
                 </IconButton>
             ),
             type: visible ? "text" : "Password",
