@@ -8,6 +8,7 @@ import useResizeAware from 'react-resize-aware'
 
 import Settings from "./Settings"
 import { UserContext } from "../../contexts"
+import { setUser } from '../../contexts/actions'
 
 import accountIcon from '../../images/account.svg'
 import settingsIcon from '../../images/settings.svg'
@@ -30,8 +31,8 @@ const useStyles = makeStyles(theme => ({
         backgroundImage: `url(${background})`,
         backgroundPosition: 'center',
         backgroundRepeat: 'repeat',
-        borderTop: `0.5rem solid ${theme.palette.primary.main}`,
-        borderBottom: `0.5rem solid ${theme.palette.primary.main}`,
+        borderTop: ({showComponent}) => `${showComponent ? 0 : 0.5}rem solid ${theme.palette.primary.main}`,
+        borderBottom: ({showComponent}) => `${showComponent ? 0 : 0.5}rem solid ${theme.palette.primary.main}`,
         margin: '5rem 0',
     },
     icon: {
@@ -46,18 +47,21 @@ const useStyles = makeStyles(theme => ({
             cursor: "pointer",
             backgroundColor: theme.palette.secondary.main,
         }
-    }
+    },
+    logout: {
+        color: theme.palette.error.main,
+    },
 }))
 
 const AnimatedButton = animated(Button)
 const AnimatedGrid = animated(Grid)
 
 export default function SettingsPortal() {
-    const classes = useStyles()
-    const { user } = useContext(UserContext)
+    const { user, dispatchUser, defaultUser } = useContext(UserContext)
     const [selectedSetting, setSelectedSetting] = useState(null)
     const [resizeListener, sizes] = useResizeAware()
     const [showComponent, setShowComponent] = useState(false)
+    const classes = useStyles({ showComponent })
 
     const buttons = [
         {label: "Settings", icon: settingsIcon, component: Settings},
@@ -114,6 +118,10 @@ export default function SettingsPortal() {
         }
     )
 
+    const handleLogout = () => {
+        dispatchUser(setUser(defaultUser))
+    }
+
     useEffect(() => {
         if (selectedSetting === null) {
             setShowComponent(false)
@@ -134,6 +142,11 @@ export default function SettingsPortal() {
                     Welcome back, {user.username}
                 </Typography>
             </Grid>
+            <Grid item>
+                <Button onClick={handleLogout}>
+                    <Typography variant="h5" classes={{root: classes.logout}}>Logout</Typography>
+                </Button>
+            </Grid>
             <Grid item container classes={{root: classes.dashboard}} alignItems="center" justifyContent="space-around">
                 {springs.map((prop, i) => {
                     const button = buttons[i]
@@ -147,7 +160,7 @@ export default function SettingsPortal() {
                         style={prop}
                         onClick={() => showComponent ? null : handleClick(button.label)} >
                             <AnimatedGrid style={styles} container direction="column" alignItems="center" justifyContent="center">
-                                {selectedSetting === button.label && showComponent ? <button.component /> : (
+                                {selectedSetting === button.label && showComponent ? <button.component setSelectedSetting={setSelectedSetting} /> : (
                                  <>
                                     <Grid item>
                                         <img src={button.icon} alt={button.label} className={classes.icon} />

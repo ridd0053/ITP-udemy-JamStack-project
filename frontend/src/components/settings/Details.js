@@ -37,6 +37,13 @@ const useStyles = makeStyles(theme => ({
             marginLeft: '5rem',
         },
     },
+    slotContainer: {
+        position: "absolute",
+        bottom: 0,
+    },
+    detailsContainer: {
+        position:"relative",
+    },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
           borderBottom: "2px solid #fff",
@@ -54,6 +61,7 @@ export default function Details() {
     const [visible, setVisible] = useState(false)
     const [values, setValues] = useState({name: "", phone: "", email: "", password: ""})
     const [errors, setErrors] = useState({})
+    const [slot, setSlot] = useState(0)
     
     const email_password = EmailPassword(classes, false, false, visible, setVisible, true)
     const name_phone = {
@@ -78,7 +86,7 @@ export default function Details() {
     const fields = [name_phone, email_password]
 
     return  (
-        <Grid item container direction="column" xs={6} alignItems="center">
+        <Grid item container direction="column" xs={6} alignItems="center" justifyContent="center" classes={{root: classes.detailsContainer}}>
             <Grid item>
                 <img src={fingerprint} alt="details settings" className={classes.icon} />
             </Grid>
@@ -93,8 +101,8 @@ export default function Details() {
                     isWhite={true} />
                 </Grid>
             ))}
-            <Grid container>
-                <Slots />
+            <Grid item container classes={{root: classes.slotContainer}}>
+                <Slots slot={slot} setSlot={setSlot} />
             </Grid>
         </Grid>
     )

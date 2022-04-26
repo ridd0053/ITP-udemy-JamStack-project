@@ -27,11 +27,18 @@ const useStyles = makeStyles(theme => ({
             marginTop: '2rem',
         },
     },
+    slotContainer: {
+        position: "absolute",
+        bottom: 0,
+    },
+    locationContainer: {
+        position:"relative",
+    }
 }))
 
 
 
-export default function Location({ variant }) {
+export default function Location() {
     const classes = useStyles()
     const [values, setValues] = useState({street:"", zip:""})
     const [errors, setErrors] = useState({})
@@ -50,7 +57,7 @@ export default function Location({ variant }) {
     }
 
     return  (
-        <Grid item container direction="column" xs={6} alignItems="center">
+        <Grid item container direction="column" xs={6} alignItems="center" justifyContent="center" classes={{root: classes.locationContainer}}>
             <Grid item>
                 <img src={locationIcon} alt="locations settings" className={classes.icon} />
             </Grid>
@@ -66,7 +73,7 @@ export default function Location({ variant }) {
             <Grid item classes={{root: classes.chipWrapper}}>
                 <Chip label="City, State"/>
             </Grid>
-            <Grid item container>
+            <Grid item container classes={{root: classes.slotContainer}}>
                 <Slots />
             </Grid>
         </Grid>
