@@ -23,11 +23,7 @@ import { makeStyles } from "@material-ui/core/styles"
 
 
 const useStyles = makeStyles(theme => ({
-    emailAdornment:{
-        height: 17,
-        width: 22,
-        marginBottom: 10,
-    },
+
     accountIcon: {
         marginTop: '2rem',
     },
@@ -49,9 +45,6 @@ const useStyles = makeStyles(theme => ({
         fontSize: '1.5rem',
         fontWeight: 600,
         textTransform: 'none',
-    },
-    visibleIcon: {
-        padding: 0,
     },
     close: {
         paddingTop: 5
@@ -75,14 +68,14 @@ const useStyles = makeStyles(theme => ({
 
 }))
 
-export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisible, isWhite) => (
+export const EmailPassword = (hideEmail, hidePassword, visible, setVisible, isWhite) => (
     {
         email: {
             helperText: "invalid email",
             placeholder: "Email",
             hidden: hideEmail,
             startAdornment: (
-                <span className={classes.emailAdornment}>
+                <span style={{height: 17, width: 22, marginBottom: 10,}}>
                     <EmailAdornment color={isWhite ? "#fff" : null} />
                 </span>
             ),
@@ -96,7 +89,7 @@ export const EmailPassword = (classes, hideEmail, hidePassword, visible, setVisi
                 <PassWordAdornment color={isWhite ? "#fff" : null} />
             ),
             endAdornment: (
-                <IconButton classes={{root: classes.visibleIcon}} onClick={() => setVisible(!visible)}>
+                <IconButton styles={{padding: 0}} onClick={() => setVisible(!visible)}>
                     {visible ? <ShowPasswordIcon color={isWhite ? "#fff" : null}/> : <HidePasswordIcon color={isWhite ? "#fff" : null}/> } 
                 </IconButton>
             ),
@@ -119,7 +112,7 @@ export default function Login({ steps, setSelectedStep, user, dispatchUser, disp
 
   
 
-    const fields = EmailPassword(classes, false, forgot, visible, setVisible)
+    const fields = EmailPassword(false, forgot, visible, setVisible)
 
     const navigateSignUp = () => {
         const signUp = steps.find(step => step.label === "Sign Up")

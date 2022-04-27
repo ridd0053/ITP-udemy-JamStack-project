@@ -6,7 +6,7 @@ import IconButton from "@material-ui/core/IconButton"
 
 import Slots from "./Slots"
 
-import card from '../../images/card.svg'
+import cardIcon from '../../images/card.svg'
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -44,26 +44,24 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function Payments() {
+export default function Payments({ user, edit }) {
     const classes = useStyles()
+    const [slot, setSlot] = useState(0)
 
-    const cards =  
-    [
-        {last4: 1234, brand:"Visa"}
-    ]
+    const card = user.paymentMethods[slot]
 
     return  (
         <Grid item container direction="column" xs={6} alignItems="center" classes={{root: classes.paymentContainer}} justifyContent="center">
             <Grid item>
-                <img src={card} alt="payment settings" className={classes.icon} />
+                <img src={cardIcon} alt="payment settings" className={classes.icon} />
             </Grid>
             <Grid item container justifyContent="center">
                 <Grid item>
                     <Typography variant="h3" classes={{root: classes.number}}>
-                        { cards ? `${cards[0].brand.toUpperCase()} **** **** **** ${cards[0].last4}` : "Add A New Card During Checkout"}
+                        { card.last4 ? `${card.brand.toUpperCase()} **** **** **** ${card.last4}` : "Add A New Card During Checkout"}
                     </Typography>
                 </Grid>
-                {   cards && 
+                {   card.last4 && 
                     <Grid item>
                         <Button variant='contained' classes={{root: classes.removeCard}}>
                             <Typography variant="h6" classes={{root: classes.removeCardText}}>
@@ -74,7 +72,7 @@ export default function Payments() {
                 }
             </Grid>
             <Grid item container classes={{root: classes.slotContainer}}>
-                <Slots />
+                <Slots slot={slot} setSlot={setSlot}  />
             </Grid>
         </Grid>
     )

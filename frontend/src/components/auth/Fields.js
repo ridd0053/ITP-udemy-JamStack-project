@@ -11,9 +11,9 @@ import { makeStyles } from "@material-ui/core/styles"
 
 const useStyles = makeStyles(theme => ({
     textField: {
-        width: '20rem',
+        width: ({ fullWidth }) => fullWidth ? undefined : '20rem',
         [theme.breakpoints.down('xs')]: {
-            width: '15rem',
+            width: ({ fullWidth }) => fullWidth ? undefined : '15rem',
         },
     },
     input: {
@@ -26,9 +26,11 @@ export default function Fields({ fields,
     setErrors, 
     values, 
     setValues,
-    isWhite
+    isWhite,
+    disabled,
+    fullWidth
 }) {
-    const classes = useStyles({ isWhite })
+    const classes = useStyles({ isWhite, fullWidth })
 
     return  (
         Object.keys(fields).map(field => {
@@ -68,7 +70,8 @@ export default function Fields({ fields,
                     }}
                     error={errors[field]}
                     helperText={errors[field] && fields[field].helperText}
-
+                    disabled={disabled}
+                    fullWidth={fullWidth}
                 />
             </Grid>
             ) : null

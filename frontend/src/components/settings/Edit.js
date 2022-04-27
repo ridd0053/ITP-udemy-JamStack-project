@@ -1,8 +1,13 @@
-import React, { useState }  from "react"
+import React, { useState, useContext }  from "react"
+import axios from "axios"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
-import Button  from "@material-ui/core/Button"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import IconButton from "@material-ui/core/IconButton"
+
+import { FeedbackContext } from "../../contexts"
+import { setSnackbar, setUser } from "../../contexts/actions"
+import Confirmation from "./Confirmation"
 
 import BackwardsIcon from '../../images//BackwardsOutline'
 import editIcon from '../../images/edit.svg'
@@ -21,8 +26,39 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Edit({ setSelectedSetting }) {
+export default function Edit({ user, dispatchUser, setSelectedSetting, edit, setEdit, details, locations, detailSlot, locationSlot, changesMade }) {
     const classes = useStyles()
+    const { dispatchFeedback } = useContext(FeedbackContext)
+    const [loading, setLoading] = useState(false)
+    const [dialogOpen, setDialogOpen] = useState(true)
+
+    const handleEdit = () => {
+        setEdit(!edit)
+        const { password, ...newDetails } = details
+        // Confirm password change
+        if ( password !== "********" ) {
+            setDialogOpen(true)
+        }
+
+        // Save changes
+        if( edit && changesMade ) {
+            setLoading(true)
+            
+            axios.post(process.env.GATSBY_STRAPI_URL + "/users-permissions/set-settings", {
+                details: newDetails, detailSlot, location: locations, locationSlot
+            }, 
+            {headers: { Authorization: `Bearer ${user.jwt}` }}
+            ).then(response => {
+                setLoading(false)
+                dispatchFeedback(setSnackbar({status: "success", message: "Settings Saved Successfully"}))
+                dispatchUser(setUser({  ...response.data, jwt: user.jwt, onboarding: true }))
+            }).catch(error => {
+                setLoading(false)
+                console.error(error)
+                dispatchFeedback(setSnackbar({status: "error", message: "There was a problem saving your settings, please try again"}))
+            })
+        }
+    }
 
     return  (
         <Grid item container xs={6} justifyContent="space-evenly" alignItems="center" classes={{root: classes.editContainer}}>
@@ -34,10 +70,15 @@ export default function Edit({ setSelectedSetting }) {
                 </IconButton>
             </Grid>
             <Grid item>
-                <IconButton>
-                    <img src={editIcon} alt="edit settings" className={classes.icon} />
-                </IconButton>
+                {loading ? <CircularProgress color="secondary" size="8rem" /> : (
+                    <IconButton disabled={loading} onClick={handleEdit}>
+                        <img src={edit ? saveIcon : editIcon} 
+                        alt={`${edit ? "save" : "edit"} settings`} 
+                        className={classes.icon} />
+                    </IconButton>
+                )}
             </Grid>
+            <Confirmation dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} user={user} dispatchFeedback={dispatchFeedback} setSnackbar={setSnackbar}/>
         </Grid>
     )
 }

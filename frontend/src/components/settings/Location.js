@@ -1,4 +1,4 @@
-import React, { useState }  from "react"
+import React, { useState, useEffect }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
@@ -38,10 +38,22 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function Location() {
+export default function Location({ user, edit, setChangesMade, values, setValues, slot, setSlot }) {
     const classes = useStyles()
-    const [values, setValues] = useState({street:"", zip:""})
+
     const [errors, setErrors] = useState({})
+    
+    useEffect(() => {
+        setValues({... user.locations[slot]})
+    }, [slot])
+
+    useEffect(() => {
+        const changed = Object.keys(user.locations[slot]).some(field => 
+            values[field] !== user.locations[slot][field])
+        setChangesMade(changed)
+        
+    }, [values])
+    
     
     const fields = {
         street: {
@@ -68,13 +80,14 @@ export default function Location() {
                 setValues={setValues} 
                 errors={errors} 
                 setErrors={setErrors}
-                isWhite={true} />
+                isWhite={true}
+                disabled={!edit} />
             </Grid>
             <Grid item classes={{root: classes.chipWrapper}}>
-                <Chip label="City, State"/>
+                <Chip label={ values.city ? `${values.city}, ${values.state}` : "City, State"}/>
             </Grid>
             <Grid item container classes={{root: classes.slotContainer}}>
-                <Slots />
+                <Slots slot={slot} setSlot={setSlot} />
             </Grid>
         </Grid>
     )
