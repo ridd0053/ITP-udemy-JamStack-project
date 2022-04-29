@@ -1,8 +1,6 @@
 import React, { useState, useEffect }  from "react"
 import Grid from "@material-ui/core/Grid"
-import Typography from "@material-ui/core/Typography"
-import Button  from "@material-ui/core/Button"
-import IconButton from "@material-ui/core/IconButton"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 
 import Fields from '../auth/Fields'
 import Slots from "./Slots"
@@ -30,11 +28,21 @@ const useStyles = makeStyles(theme => ({
     },
     icon: {
         marginBottom: '3rem',
+        [theme.breakpoints.down('xs')]: { 
+            marginBottom: '1rem',
+        },
     },
     fieldContainer: {
         marginBottom: "2rem",
         "& > :not(:first-child)": {
             marginLeft: '5rem',
+        },
+        [theme.breakpoints.down('xs')]: { 
+            marginBottom: "1rem",
+            "& > :not(:first-child)": {
+                marginLeft: 0,
+                marginTop: "1rem",
+            },
         },
     },
     slotContainer: {
@@ -43,6 +51,10 @@ const useStyles = makeStyles(theme => ({
     },
     detailsContainer: {
         position:"relative",
+        [theme.breakpoints.down('md')]: { 
+            borderBottom: '4px solid #fff',
+            height: '30rem',
+        },
     },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
@@ -55,12 +67,22 @@ const useStyles = makeStyles(theme => ({
 
 }))
 
-export default function Details({ user, edit, setChangesMade, values, setValues, slot, setSlot }) {
+export default function Details({ 
+    user, 
+    edit, 
+    setChangesMade, 
+    values, 
+    setValues, 
+    slot, 
+    setSlot, 
+    errors, 
+    setErrors 
+}) {
     const classes = useStyles()
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
     const [visible, setVisible] = useState(false)
-    const [errors, setErrors] = useState({})
-    
+        
     useEffect(() => {
         setValues({... user.contactInfo[slot], password:"********"})
     }, [slot])
@@ -95,12 +117,12 @@ export default function Details({ user, edit, setChangesMade, values, setValues,
     const fields = [name_phone, email_password]
 
     return  (
-        <Grid item container direction="column" xs={6} alignItems="center" justifyContent="center" classes={{root: classes.detailsContainer}}>
+        <Grid item container direction="column" lg={6} xs={12} alignItems="center" justifyContent="center" classes={{root: classes.detailsContainer}}>
             <Grid item>
                 <img src={fingerprint} alt="details settings" className={classes.icon} />
             </Grid>
             {fields.map((pair, i) => (
-                <Grid container justifyContent="center" key={i} classes={{root: classes.fieldContainer}}>
+                <Grid container justifyContent="center" key={i} classes={{root: classes.fieldContainer}} direction={matchesXS ? "column": "row"} alignItems={matchesXS ? "center": undefined}>
                     <Fields
                     fields={pair} 
                     values={values} 
@@ -109,6 +131,7 @@ export default function Details({ user, edit, setChangesMade, values, setValues,
                     setErrors={setErrors}
                     isWhite={true}
                     disabled={!edit}
+                    settings
                     />
                 </Grid>
             ))}

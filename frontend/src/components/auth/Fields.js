@@ -11,9 +11,9 @@ import { makeStyles } from "@material-ui/core/styles"
 
 const useStyles = makeStyles(theme => ({
     textField: {
-        width: ({ fullWidth }) => fullWidth ? undefined : '20rem',
+        width: ({ fullWidth, settings }) => (fullWidth ? undefined : settings ? "15rem" : '20rem'),
         [theme.breakpoints.down('xs')]: {
-            width: ({ fullWidth }) => fullWidth ? undefined : '15rem',
+            width: ({ fullWidth }) => (fullWidth ? undefined : '15rem'),
         },
     },
     input: {
@@ -28,9 +28,10 @@ export default function Fields({ fields,
     setValues,
     isWhite,
     disabled,
-    fullWidth
+    fullWidth,
+    settings
 }) {
-    const classes = useStyles({ isWhite, fullWidth })
+    const classes = useStyles({ isWhite, fullWidth, settings })
 
     return  (
         Object.keys(fields).map(field => {

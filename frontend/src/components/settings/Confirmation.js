@@ -8,6 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import CircularProgress from "@material-ui/core/CircularProgress"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 
 import Fields from "../auth/Fields"
 import { EmailPassword } from "../auth/Login"
@@ -30,6 +31,7 @@ export default function Confirmation({dialogOpen, setDialogOpen, user, dispatchF
     const [errors, setErrors] = useState({})
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
 
     const { password } = EmailPassword(false, false, visible, setVisible)
@@ -37,6 +39,9 @@ export default function Confirmation({dialogOpen, setDialogOpen, user, dispatchF
         password: {...password, placeholder: "Old Password"},
         confirmation: {...password, placeholder: "New Password"}
     }
+
+    const disabled = Object.keys(errors).some(error => errors[error] === true || 
+        Object.keys(errors).length !== Object.keys(values).length)
 
     const handleConfirm = () => {
         setLoading(true)
@@ -64,21 +69,25 @@ export default function Confirmation({dialogOpen, setDialogOpen, user, dispatchF
             dispatchFeedback(setSnackbar({status: "error", message: "Old Password Invalid"}))
         })
     }
+    const handleCancel = () => {
+     setDialogOpen(false)
+     dispatchFeedback(setSnackbar({status: "error", message: "Your password has not been changed."}))
+    }
 
     return  (
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <Dialog open={dialogOpen} onClose={handleCancel}>
             <DialogTitle disableTypography>
-                <Typography varinat="h3" classes={{root: classes.title}}>Change Password</Typography>
+                <Typography align={matchesXS ? "center" : undefined} varinat="h3" classes={{root: classes.title}}>Change Password</Typography>
             </DialogTitle>
             <DialogContent>
-                <DialogContentText>
+                <DialogContentText align={matchesXS ? "center" : undefined}>
                     You are changing your account password. Please confirm your old and new password.
                 </DialogContentText>
                 <Fields fields={fields} values={values} setValues={setValues} errors={errors} setErrors={setErrors} fullWidth={true} />
             </DialogContent>
             <DialogActions>
                 <Button disabled={loading} onClick={() => setDialogOpen(false)} color="primary" classes={{root: classes.button}}> Do Not Change Password </Button>
-                <Button disabled={loading} onClick={handleConfirm} color="secondary" classes={{root: classes.button}}>  
+                <Button disabled={loading || disabled} onClick={handleConfirm} color="secondary" classes={{root: classes.button}}>  
                     { loading ? <CircularProgress/> : "Yes, Change My Password" }
                 </Button>
             </DialogActions>

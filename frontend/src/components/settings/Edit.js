@@ -22,17 +22,26 @@ const useStyles = makeStyles(theme => ({
         width: "8rem",
     },
     editContainer: {
-        borderLeft: '4px solid #fff'
+        borderLeft: '4px solid #fff',
+        [theme.breakpoints.down('md')]: { 
+            height: '30rem',
+            borderLeft: 0,
+        },
     }
 }))
 
-export default function Edit({ user, dispatchUser, setSelectedSetting, edit, setEdit, details, locations, detailSlot, locationSlot, changesMade }) {
+export default function Edit({ user, dispatchUser, setSelectedSetting, edit, setEdit, details, locations, detailSlot, locationSlot, changesMade, isError }) {
     const classes = useStyles()
     const { dispatchFeedback } = useContext(FeedbackContext)
     const [loading, setLoading] = useState(false)
-    const [dialogOpen, setDialogOpen] = useState(true)
+    const [dialogOpen, setDialogOpen] = useState(false)
 
     const handleEdit = () => {
+        if(edit && isError) {
+            dispatchFeedback((setSnackbar({status: "error", message: "All fields must be valid before saving."})))
+            return
+        }
+
         setEdit(!edit)
         const { password, ...newDetails } = details
         // Confirm password change
@@ -61,7 +70,7 @@ export default function Edit({ user, dispatchUser, setSelectedSetting, edit, set
     }
 
     return  (
-        <Grid item container xs={6} justifyContent="space-evenly" alignItems="center" classes={{root: classes.editContainer}}>
+        <Grid item container lg={6} xs={12}  justifyContent="space-evenly" alignItems="center" classes={{root: classes.editContainer}}>
             <Grid item>
                 <IconButton onClick={() => setSelectedSetting(null)}>
                     <span className={classes.icon}>
