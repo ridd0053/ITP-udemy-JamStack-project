@@ -1,7 +1,7 @@
 import React from 'react'
 import { ThemeProvider } from '@material-ui/core'
 import { ApolloWrapper } from '../../Apollo/ApolloWrapper'
-import { UserWrapper, FeedbackWrapper } from '../../contexts'
+import { UserWrapper, FeedbackWrapper, CartWrapper } from '../../contexts'
 import theme from './theme'
 
 export default ({ element }) => {
@@ -10,7 +10,9 @@ export default ({ element }) => {
             <ApolloWrapper>
                 <UserWrapper>
                     <FeedbackWrapper>
-                        {element}
+                        <CartWrapper>
+                            {element}
+                        </CartWrapper>
                     </FeedbackWrapper>
                 </UserWrapper>
             </ApolloWrapper>

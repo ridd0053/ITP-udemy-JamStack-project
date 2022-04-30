@@ -1,10 +1,13 @@
-import React, { useState, useEffect }  from "react"
+import React, { useState, useEffect, useContext }  from "react"
 import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button from "@material-ui/core/Button"
 import Badge from "@material-ui/core/Badge"
 import ButtonGroup from "@material-ui/core/ButtonGroup"
+
+import { CartContext } from "../../contexts"
+import { addToCart } from "../../contexts/actions"
 
 
 import { makeStyles } from "@material-ui/core/styles"
@@ -39,7 +42,8 @@ const useStyles = makeStyles(theme => ({
         marginTop: "-0.25rem"
     },
     cartButton: {
-        marginLeft: '0 !important'
+        marginLeft: '0 !important',
+        transition: "background-color 1s ease"
     },
     qtyButton: {
         "&:hover": {
@@ -57,13 +61,22 @@ const useStyles = makeStyles(theme => ({
         "&:hover": {
             backgroundColor: theme.palette.common.grey,
         }
+    },
+    success: {
+        backgroundColor: theme.palette.success.main,
+        "&:hover": {
+            backgroundColor: theme.palette.success.main,
+        }
     }
 }))
 
 
-export default function QtyButton({stock, selectedVariant }) {
+export default function QtyButton({stock, variants, selectedVariant, name }) {
     const classes = useStyles()
     const [qty, setQty] = useState(1);
+    const [success, setSuccess] = useState(false)
+    const { cart, dispatchCart } = useContext(CartContext)
+
     const [disableDownButton, setDisableDownButton] = useState(false);
     const [disableUpButton, setDisableUpButton] = useState(false);
 
@@ -78,6 +91,19 @@ export default function QtyButton({stock, selectedVariant }) {
         const newQty = direction === "up" ? qty + 1 : qty - 1 
         
         setQty(newQty)
+    }
+
+    const handleCart = () => {
+        setSuccess(true)
+        
+        dispatchCart(
+            addToCart(
+                variants[selectedVariant], 
+                qty, 
+                name, 
+                stock[selectedVariant].qty
+            )
+        )
     }
 
     useEffect(() => {
@@ -101,6 +127,14 @@ export default function QtyButton({stock, selectedVariant }) {
         setQty(stock[selectedVariant].qty)
     }
     }, [stock, selectedVariant])
+
+    useEffect(() => {
+        let timer
+        if (success) {
+            timer = setTimeout(() => setSuccess(false), 1500)
+        }
+        return () => clearTimeout(timer)
+    }, [success])
     return  (
         <Grid item>
             <ButtonGroup classes={{root: classes.mainGroup}}>
@@ -129,10 +163,21 @@ export default function QtyButton({stock, selectedVariant }) {
                         </Typography>
                     </Button>
                 </ButtonGroup>
-                <Button classes={{root: clsx(classes.endButtons, classes.cartButton)}}>
-                    <Badge overlap="circular" badgeContent="+" classes={{badge: classes.badgeClass}}>
+                <Button onClick={handleCart} classes={{root: clsx(classes.endButtons, classes.cartButton, {
+                    [classes.success]: success
+                })}}>
+                    {success ? 
+                    (<Typography variant="h3" classes={{root: classes.qtyText}}>
+                        ✓
+                    </Typography> ): 
+                    (
+                        <Badge overlap="circular" badgeContent="+" classes={{badge: classes.badgeClass}}>
                         <Cart color="#fff" />
                     </Badge>
+                    )
+                    
+                    }
+
                 </Button>
             </ButtonGroup>
         </Grid>
