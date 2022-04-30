@@ -15,7 +15,7 @@ import explore from '../../images/explore.svg'
 import Rating from '../home/Rating'
 import Sizes from "./Sizes"
 import Swatches from "./Swatches"
-import QtyButton from "./qtyButton"
+import QtyButton from "./QtyButton"
 import { getStockDisplay } from "../product-detail/ProductInfo"
 
 

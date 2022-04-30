@@ -12,7 +12,7 @@ import subscription from '../../images/subscription.svg'
 import Rating from "../home/Rating"
 import Sizes from "../products-list/Sizes"
 import Swatches from "../products-list/Swatches"
-import QtyButton from "../products-list/qtyButton"
+import QtyButton from "../products-list/QtyButton"
 import { colorIndex } from "../products-list/ProductFrameGrid"
 
 import { makeStyles } from "@material-ui/core/styles"

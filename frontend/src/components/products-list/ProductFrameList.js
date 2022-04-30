@@ -9,7 +9,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import Rating from '../home/Rating'
 import Sizes from "./Sizes"
 import Swatches from "./Swatches"
-import QtyButton from "./qtyButton"
+import QtyButton from "./QtyButton"
 import { colorIndex } from './ProductFrameGrid'
 import { getStockDisplay } from "../product-detail/ProductInfo"
 
