@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext }  from "react"
 import axios from 'axios'
 import Grid from "@material-ui/core/Grid"
 import CircularProgress  from "@material-ui/core/CircularProgress"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import Switch from "@material-ui/core/Switch"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
@@ -20,7 +22,7 @@ import { makeStyles } from "@material-ui/core/styles"
 
 const useStyles = makeStyles(theme => ({
     icon: {
-        marginBottom: '3rem',
+        marginBottom: ({ checkout }) => checkout ? "1rem" : '3rem',
         [theme.breakpoints.down('xs')]: { 
             marginBottom: '1rem',
         },
@@ -36,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     },
     slotContainer: {
         position: "absolute",
-        bottom: 0,
+        bottom: ({checkout}) => checkout ? -8 : 0,
     },
     locationContainer: {
         position:"relative",
@@ -44,13 +46,20 @@ const useStyles = makeStyles(theme => ({
             borderBottom: '4px solid #fff',
             height: '30rem',
         },
-    }
+    },
+    switchWrapper: {
+        marginRight: 4,
+    },
+    switchLabel: {
+        color: "#fff",
+        fontWeight: 600,
+    },
 }))
 
 
 
-export default function Location({ user, edit, setChangesMade, values, setValues, slot, setSlot, errors, setErrors }) {
-    const classes = useStyles()
+export default function Location({ user, edit, setChangesMade, values, setValues, slot, setSlot, errors, setErrors, billing, setBilling, checkout }) {
+    const classes = useStyles({ checkout })
     const [loading, setLoading] = useState(false)
     const { dispatchFeedback } = useContext(FeedbackContext)
 
@@ -75,9 +84,11 @@ export default function Location({ user, edit, setChangesMade, values, setValues
     }, [slot])
 
     useEffect(() => {
+        if (!checkout) {        
         const changed = Object.keys(user.locations[slot]).some(field => 
             values[field] !== user.locations[slot][field])
         setChangesMade(changed)
+        }
 
         if (values.zip.length >= 4 && values.zip.length <= 7) {
             if (values.city) return
@@ -103,7 +114,7 @@ export default function Location({ user, edit, setChangesMade, values, setValues
     }
 
     return  (
-        <Grid item container direction="column" lg={6} xs={12}  alignItems="center" justifyContent="center" classes={{root: classes.locationContainer}}>
+        <Grid item container direction="column" lg={checkout ? 12 : 6} xs={12}  alignItems="center" justifyContent="center" classes={{root: classes.locationContainer}}>
             <Grid item>
                 <img src={locationIcon} alt="locations settings" className={classes.icon} />
             </Grid>
@@ -115,15 +126,20 @@ export default function Location({ user, edit, setChangesMade, values, setValues
                 errors={errors} 
                 setErrors={setErrors}
                 isWhite={true}
-                disabled={!edit} />
+                disabled={checkout ? false : !edit} />
             </Grid>
             <Grid item classes={{root: classes.chipWrapper}}>
                 {loading ? <CircularProgress color="secondary" /> : (
                     <Chip label={ values.city ? `${values.city}, ${values.state}` : "City, State"}/>
                 )}
             </Grid>
-            <Grid item container classes={{root: classes.slotContainer}}>
-                <Slots slot={slot} setSlot={setSlot} />
+            <Grid item container classes={{root: classes.slotContainer}} justifyContent={checkout ? "space-between" : undefined}>
+                <Slots slot={slot} setSlot={setSlot} checkout={checkout} />
+                {checkout && (
+                    <Grid item>
+                        <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Billing" labelPlacement="start" control={<Switch checked={billing} onChange={() => setBilling(!billing)} color="secondary" />} />
+                    </Grid>
+                )}
             </Grid>
         </Grid>
     )

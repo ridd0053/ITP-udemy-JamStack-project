@@ -47,6 +47,8 @@ export default function Settings({ setSelectedSetting }) {
     const [locationSlot, setLocationSlot] = useState(0)
     const [locationErrors, setLocationErrors] = useState({})
 
+    const [billingSlot, setBillingSlot] = useState(0)
+
     const allErrors = {...detailErrors, ...locationErrors}
     const isError = Object.keys(allErrors).some(error => allErrors[error] === true);
 
@@ -65,7 +67,7 @@ export default function Settings({ setSelectedSetting }) {
         <>
             <Grid container classes={{root: classes.sectionContainer}}>
                 <Details user={user} edit={edit} setChangesMade={setChangesMade} values={detailValues} setValues={setDetailValues} slot={detailSlot} setSlot={setDetailSlot} errors={detailErrors} setErrors={setDetailErrors} />
-                <Payments user={user} edit={edit} />
+                <Payments user={user} edit={edit} slot={billingSlot} setSlot={setBillingSlot} />
             </Grid>
             <Grid container classes={{root: clsx(classes.bottomRow, classes.sectionContainer)}}>
                 <Location user={user} edit={edit} setChangesMade={setChangesMade} values={locationValues} setValues={setLocationValues} slot={locationSlot} setSlot={setLocationSlot} errors={locationErrors} setErrors={setLocationErrors} />

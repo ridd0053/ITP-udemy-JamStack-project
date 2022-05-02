@@ -1,5 +1,8 @@
 import React, { useState, useEffect }  from "react"
+import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import Switch from "@material-ui/core/Switch"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 
 import Fields from '../auth/Fields'
@@ -27,7 +30,8 @@ const useStyles = makeStyles(theme => ({
         marginBottom: 10,
     },
     icon: {
-        marginBottom: '3rem',
+        marginTop: ({ checkout }) => checkout ? '-2rem' : undefined,
+        marginBottom: ({ checkout }) => checkout ? '1rem' : '3rem',
         [theme.breakpoints.down('xs')]: { 
             marginBottom: '1rem',
         },
@@ -45,9 +49,14 @@ const useStyles = makeStyles(theme => ({
             },
         },
     },
+    fieldContainerCart: {
+       "& > *": {
+        marginBottom: "1rem",
+       },
+    },
     slotContainer: {
         position: "absolute",
-        bottom: 0,
+        bottom: ({checkout}) => checkout ? -8 : 0,
     },
     detailsContainer: {
         position:"relative",
@@ -55,6 +64,13 @@ const useStyles = makeStyles(theme => ({
             borderBottom: '4px solid #fff',
             height: '30rem',
         },
+    },
+    switchWrapper: {
+        marginRight: 4,
+    },
+    switchLabel: {
+        color: "#fff",
+        fontWeight: 600,
     },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
@@ -76,18 +92,27 @@ export default function Details({
     slot, 
     setSlot, 
     errors, 
-    setErrors 
+    setErrors,
+    billing,
+    setBilling,
+    checkout 
 }) {
-    const classes = useStyles()
+    const classes = useStyles({ checkout })
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
     const [visible, setVisible] = useState(false)
         
     useEffect(() => {
-        setValues({... user.contactInfo[slot], password:"********"})
+        if (checkout) {
+            console.log(slot)
+            setValues({... user.contactInfo[slot]})
+        } else {
+            setValues({... user.contactInfo[slot], password:"********"})
+        }
     }, [slot])
 
     useEffect(() => {
+        if (checkout) return
         const changed = Object.keys(user.contactInfo[slot]).some(field => 
             values[field] !== user.contactInfo[slot][field])
         setChangesMade(changed)
@@ -114,15 +139,21 @@ export default function Details({
         },
         
     }
-    const fields = [name_phone, email_password]
+    let fields = [name_phone, email_password]
+    if (checkout) {
+        fields = [ {name: name_phone.name, email: email_password.email, phone: name_phone.phone} ]
+    }
 
     return  (
-        <Grid item container direction="column" lg={6} xs={12} alignItems="center" justifyContent="center" classes={{root: classes.detailsContainer}}>
+        <Grid item container direction="column" lg={checkout ? 12 : 6} xs={12} alignItems="center" justifyContent="center" classes={{root: classes.detailsContainer}}>
             <Grid item>
                 <img src={fingerprint} alt="details settings" className={classes.icon} />
             </Grid>
             {fields.map((pair, i) => (
-                <Grid container justifyContent="center" key={i} classes={{root: classes.fieldContainer}} direction={matchesXS ? "column": "row"} alignItems={matchesXS ? "center": undefined}>
+                <Grid container justifyContent="center" key={i} classes={{root: clsx({
+                    [classes.fieldContainerCart] : checkout,
+                    [classes.fieldContainer]: !checkout,
+                })}} direction={matchesXS || checkout ? "column": "row"} alignItems={matchesXS || checkout ? "center": undefined}>
                     <Fields
                     fields={pair} 
                     values={values} 
@@ -130,13 +161,18 @@ export default function Details({
                     errors={errors} 
                     setErrors={setErrors}
                     isWhite={true}
-                    disabled={!edit}
-                    settings
+                    disabled={ checkout ? false : !edit}
+                    settings={!checkout}
                     />
                 </Grid>
             ))}
-            <Grid item container classes={{root: classes.slotContainer}}>
-                <Slots slot={slot} setSlot={setSlot} />
+            <Grid item container justifyContent={checkout ? "space-between" : undefined} classes={{root: classes.slotContainer}}>
+                <Slots slot={slot} setSlot={setSlot} checkout={checkout} />
+                {checkout && (
+                    <Grid item>
+                        <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Billing" labelPlacement="start" control={<Switch checked={billing} onChange={() => setBilling(!billing)} color="secondary" />} />
+                    </Grid>
+                )}
             </Grid>
         </Grid>
     )

@@ -15,7 +15,9 @@ import { makeStyles } from "@material-ui/core/styles"
 
 
 const useStyles = makeStyles(theme => ({
-
+    cartContainer: {
+        minHeight: "90vh",
+    },
 }))
 
 export default function Cart() {
@@ -24,7 +26,7 @@ export default function Cart() {
 
     return  (
         <Layout>
-            <Grid container direction="column" alignItems="center">
+            <Grid container direction="column" alignItems="center" classes={{root: classes.cartContainer}}>
                 <Grid item>
                     <Typography variant="h1">
                         {user.username}'s Cart
@@ -32,7 +34,7 @@ export default function Cart() {
                 </Grid>
                 <Grid item container>
                     <CartItems/>
-                    <CheckoutPortal />
+                    <CheckoutPortal user={user} />
                 </Grid> 
             </Grid>
         </Layout>

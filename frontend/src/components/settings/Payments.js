@@ -2,7 +2,8 @@ import React, { useState }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
-import IconButton from "@material-ui/core/IconButton"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import Switch from "@material-ui/core/Switch"
 
 import Slots from "./Slots"
 
@@ -38,7 +39,7 @@ const useStyles = makeStyles(theme => ({
         },
     },
     paymentContainer: {
-        borderLeft: '4px solid #fff',
+        borderLeft: ({ checkout }) => checkout ? 0 : '4px solid #fff',
         position:"relative",
         [theme.breakpoints.down('md')]: { 
             height: '30rem',
@@ -49,16 +50,22 @@ const useStyles = makeStyles(theme => ({
         position: "absolute",
         bottom: 0,
     },
+    switchWrapper: {
+        marginRight: 4,
+    },
+    switchLabel: {
+        color: "#fff",
+        fontWeight: 600,
+    },
 }))
 
-export default function Payments({ user, edit }) {
-    const classes = useStyles()
-    const [slot, setSlot] = useState(0)
-
+export default function Payments({ user, slot, setSlot, checkout, saveCard, setSaveCard }) {
+    const classes = useStyles({ checkout })
+    
     const card = user.paymentMethods[slot]
 
     return  (
-        <Grid item container direction="column" lg={6} xs={12}  alignItems="center" classes={{root: classes.paymentContainer}} justifyContent="center">
+        <Grid item container direction="column" lg={checkout ? 12 : 6} xs={12}  alignItems="center" classes={{root: classes.paymentContainer}} justifyContent="center">
             <Grid item>
                 <img src={cardIcon} alt="payment settings" className={classes.icon} />
             </Grid>
@@ -78,8 +85,13 @@ export default function Payments({ user, edit }) {
                 </Grid>
                 }
             </Grid>
-            <Grid item container classes={{root: classes.slotContainer}}>
-                <Slots slot={slot} setSlot={setSlot}  />
+            <Grid item container classes={{root: classes.slotContainer}} justifyContent={checkout ? "space-between" : undefined}>
+                <Slots slot={slot} setSlot={setSlot} noLabel/>
+                {checkout && (
+                    <Grid item>
+                        <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Save Card For Future Use " labelPlacement="start" control={<Switch checked={saveCard} onChange={() => setSaveCard(!saveCard)} color="secondary" />} />
+                    </Grid>
+                )}
             </Grid>
         </Grid>
     )
