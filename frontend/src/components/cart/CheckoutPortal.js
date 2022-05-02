@@ -11,6 +11,7 @@ import Location from "../settings/Location"
 import Shipping from "./Shipping"
 import Payments from "../settings/Payments"
 import Confirmation from "./Confirmation"
+import BillingConfirmation from "./BillingConfirmation"
 import validate from "../ui/Validate"
 
 import { makeStyles } from "@material-ui/core/styles"
@@ -216,6 +217,15 @@ export default function CheckoutPortal({ user }) {
             <Grid item container direction="column" alignItems="center" classes={{root: classes.stepContainer}}>
                 {steps[selectedStep].component}
             </Grid>
+            {steps[selectedStep].title === "Confirmation" && (
+            <BillingConfirmation
+            detailForBilling={detailForBilling}
+            billingDetails={billingDetails}
+            detailSlot={detailSlot}
+            locationForBilling={locationForBilling}
+            billingLocation={billingLocation}
+            locationSlot={locationSlot}
+            />)}
         </Grid>
     )
 }
