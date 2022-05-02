@@ -37,12 +37,14 @@ export default function CheckoutPortal({ user }) {
     const [selectedStep, setSelectedStep] = useState(0)
 
     const [detailValues, setDetailValues] = useState({name: "", email: "", phone:""})
+    const [billingDetails, setBillingDetails] = useState({name: "", email: "", phone:""})
     const [detailSlot, setDetailSlot] = useState(0)
-    const [detailBilling, setDetailBilling] = useState(false)
+    const [detailForBilling, setDetailForBilling] = useState(false)
 
     const [locationValues, setLocationValues] = useState({street: "", zip: "", city:"", state:""})
+    const [billingLocation, setBillingLocation] = useState({street: "", zip: "", city:"", state:""})
     const [locationSlot, setLocationSlot] = useState(0)
-    const [locationBilling, setLocationBilling] = useState(false)
+    const [locationForBilling, setLocationForBilling] = useState(false)
 
     const [billingSlot, setBillingSlot] = useState(0)
     const [ saveCard, setSaveCard ] = useState(false)
@@ -57,12 +59,33 @@ export default function CheckoutPortal({ user }) {
 
     const [errors, setErrors] = useState({})
     
-    const errorHelper = values => {
+    const errorHelper = (values, forBilling, billingValues, slot) => {
         const valid = validate(values)
-        return Object.keys(valid).some(value => !valid[value]);
+
+        // Executes when a slot is marked as billing
+        if ( forBilling !== false && forBilling !== undefined) {
+            // validate the billing values
+            const billingValid = validate(billingValues)
+
+            // If the shipping info is the same as the billing info
+            if (forBilling === slot) {
+                // validate one set values
+                return Object.keys(billingValid).some(value => !billingValid[value]);
+            } else {
+                // If the billing info is different then the shipping info, check billing and shipping values
+                return Object.keys(billingValid).some(value => !billingValid[value]) || Object.keys(valid).some(value => !valid[value]);
+
+            }
+
+        } else {
+            // Executes when none of the slots are marked as billing, just validate current slot
+            return Object.keys(valid).some(value => !valid[value]);
+        }
+
+        
     }
 
-    const steps = [
+    let steps = [
         {
             title: 'Contact info', 
             component: (
@@ -74,12 +97,30 @@ export default function CheckoutPortal({ user }) {
                     setSlot={setDetailSlot}
                     errors={errors}
                     setErrors={setErrors}
-                    billing={detailBilling}
-                    setBilling={setDetailBilling}
+                    billing={detailForBilling}
+                    setBilling={setDetailForBilling}
+                    billingValues={billingDetails}
+                    setBillingValues={setBillingDetails}
                     checkout
                 />
             ),
-            error: errorHelper(detailValues)},
+            error: errorHelper(detailValues, detailForBilling, billingDetails, detailSlot)
+        },
+        {
+            title: 'Billing Info',
+            component: (
+                <Details
+                    user={user}
+                    values={billingDetails}
+                    setValues={setBillingDetails}
+                    errors={errors}
+                    setErrors={setErrors}
+                    checkout
+                    noSlots 
+                />
+            ),
+            error: errorHelper(billingDetails)
+        },
         {
             title: 'Address', 
             component: (
@@ -91,12 +132,29 @@ export default function CheckoutPortal({ user }) {
                     setSlot={setLocationSlot}
                     errors={errors}
                     setErrors={setErrors}
-                    billing={locationBilling}
-                    setBilling={setLocationBilling}   
+                    billing={locationForBilling}
+                    setBilling={setLocationForBilling} 
+                    billingValues={billingLocation}
+                    setBillingValues={setBillingLocation}  
                     checkout   
                 />
             ),
-            error: errorHelper(locationValues)  
+            error: errorHelper(locationValues, locationForBilling, billingLocation, locationSlot)  
+        },
+        {
+            title: 'Billing Address', 
+            component: (
+                <Location
+                    user={user}
+                    values={billingLocation}
+                    setValues={setBillingLocation}
+                    errors={errors}
+                    setErrors={setErrors}
+                    checkout
+                    noSlots   
+                />
+            ),
+            error: errorHelper(billingLocation)  
         },
         {
         title: 'Shipping',
@@ -124,13 +182,33 @@ export default function CheckoutPortal({ user }) {
             error: false
         },
         {title: 'Confirmation', 
-        component: (<Confirmation />)},
+        component: (
+        <Confirmation 
+            detailValues={detailValues}
+            billingDetails={billingDetails}
+            detailForBilling={detailForBilling}
+            locationValues={locationValues}
+            billingLocation={billingLocation}
+            locationForBilling={locationForBilling}
+            shippingOptions={shippingOptions}
+            selectedShipping={selectedShipping}
+
+        />
+        ),
+        },
         {title: `Thanks, ${user.username}`}
     ]
 
+    if ( detailForBilling !== false ) {
+        steps = steps.filter(step => step.title !== "Billing Info")
+    }
+    if ( locationForBilling !== false  ) {
+        steps = steps.filter(step => step.title !== "Billing Address")
+    }
+
     useEffect(() => {
         setErrors({})
-    }, [detailSlot, locationSlot, billingSlot])
+    }, [detailSlot, locationSlot, billingSlot, selectedStep])
 
     return  (
         <Grid item container direction="column" xs={6} alignItems="flex-end">

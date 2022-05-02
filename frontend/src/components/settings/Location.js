@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useContext }  from "react"
+import React, { useState, useEffect, useContext, useRef }  from "react"
 import axios from 'axios'
 import Grid from "@material-ui/core/Grid"
 import CircularProgress  from "@material-ui/core/CircularProgress"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import Switch from "@material-ui/core/Switch"
-import Typography from "@material-ui/core/Typography"
-import Button  from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
 
 import Fields from "../auth/Fields"
@@ -58,8 +56,25 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function Location({ user, edit, setChangesMade, values, setValues, slot, setSlot, errors, setErrors, billing, setBilling, checkout }) {
+export default function Location({ 
+    user, 
+    edit, 
+    setChangesMade, 
+    values, 
+    setValues, 
+    slot, 
+    setSlot, 
+    errors, 
+    setErrors, 
+    billing, 
+    setBilling, 
+    checkout,
+    billingValues,
+    setBillingValues,
+    noSlots,
+    }) {
     const classes = useStyles({ checkout })
+    const isMounted = useRef(false)
     const [loading, setLoading] = useState(false)
     const { dispatchFeedback } = useContext(FeedbackContext)
 
@@ -80,6 +95,7 @@ export default function Location({ user, edit, setChangesMade, values, setValues
     }
 
     useEffect(() => {
+        if (noSlots) return
         setValues({... user.locations[slot]})
     }, [slot])
 
@@ -98,6 +114,22 @@ export default function Location({ user, edit, setChangesMade, values, setValues
         }
         
     }, [values])
+
+    useEffect(() => {
+        if ( noSlots ) {
+            isMounted.current = false
+            return
+        }
+        if (isMounted.current === false) {
+            isMounted.current = true
+            return
+        }
+        if ( billing === false && isMounted.current ) {
+            setValues(billingValues)
+        } else {
+           setBillingValues(values)
+        }
+       }, [billing])
     
     
     const fields = {
@@ -121,8 +153,8 @@ export default function Location({ user, edit, setChangesMade, values, setValues
             <Grid item container direction="column" alignItems="center" classes={{root: classes.fieldContainer}}>
             <Fields 
                 fields={fields} 
-                values={values} 
-                setValues={setValues} 
+                values={billing === slot && !noSlots ? billingValues : values} 
+                setValues={billing === slot && !noSlots ? setBillingValues : setValues} 
                 errors={errors} 
                 setErrors={setErrors}
                 isWhite={true}
@@ -133,14 +165,16 @@ export default function Location({ user, edit, setChangesMade, values, setValues
                     <Chip label={ values.city ? `${values.city}, ${values.state}` : "City, State"}/>
                 )}
             </Grid>
+            {noSlots ? null : (        
             <Grid item container classes={{root: classes.slotContainer}} justifyContent={checkout ? "space-between" : undefined}>
                 <Slots slot={slot} setSlot={setSlot} checkout={checkout} />
                 {checkout && (
                     <Grid item>
-                        <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Billing" labelPlacement="start" control={<Switch checked={billing} onChange={() => setBilling(!billing)} color="secondary" />} />
+                        <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Billing" labelPlacement="start" control={<Switch checked={billing === slot} onChange={() => setBilling(billing === slot ? false : slot)} color="secondary" />} />
                     </Grid>
                 )}
             </Grid>
+            )}
         </Grid>
     )
 }

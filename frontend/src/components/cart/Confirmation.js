@@ -1,4 +1,4 @@
-import React, { useState }  from "react"
+import React, { useState, useContext }  from "react"
 import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
@@ -6,6 +6,7 @@ import Button  from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
 
 import Fields from "../auth/Fields"
+import { CartContext } from "../../contexts"
 
 
 import confirmationIcon from "../../images/tag.svg"
@@ -92,40 +93,55 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function Confirmation() {
+export default function Confirmation({
+    detailValues,
+    billingDetails,
+    detailForBilling,
+    locationValues,
+    billingLocation,
+    locationForBilling,
+    shippingOptions,
+    selectedShipping,
+}) {
     const classes = useStyles()
+    const { cart } = useContext(CartContext)
     const [promo, setPromo] = useState({promo: ""})
     const [promoErrors, setPromoErrors] = useState({})
 
+    const shipping = shippingOptions.find(option => option.label === selectedShipping)
+
+    const subtotal = cart.reduce((total, item) => total + item.variant.price * item.qty, 0)
+    const tax = subtotal * 0.21
+
     const firstFields = [
-        {value: "Ilse", 
+        {value: detailValues.name, 
         adornment: (
             <div className={classes.nameWrapper}>
                 <NameAdornment color="#fff" />
             </div>
         )},
-        {value: "Ilse@mail.com", 
+        {value: detailValues.email, 
         adornment: (
             <div className={classes.emailWrapper}>
                 <EmailAdornment color="#fff" />
             </div>
         )},
-        {value: "0611111111", 
+        {value: detailValues.phone, 
         adornment: (
             <div className={classes.phoneWrapper}>
                 <PhoneAdornment color="#fff" />
             </div>
         )},
-        {value: "Sesamestreet 123", 
+        {value: locationValues.street, 
         adornment: (
             <img src={streetAdornment} alt="street address" />
         )},
     ]
 
     const secondFields = [
-        { value: 'Zeeland, Middelburg 4331NB',
+        { value:  ` ${locationValues.zip} ${locationValues.city}, ${locationValues.state}`,
         adornment: (
-            <img src={zipAdornment} alt="City, state, zip code" />
+            <img src={zipAdornment} alt="zip code, city, state" />
         )
         },
         { value: '**** **** **** 1234',
@@ -145,17 +161,19 @@ export default function Confirmation() {
     const prices = [
         {
             label: "SUBTOTAL",
-            value: 99.99
+            value: subtotal.toFixed(2),
         },
         {
             label: "SHIPPING",
-            value: 9.99
+            value: shipping.price
         },
         {
             label: "TAX",
-            value: 9.67
+            value: tax.toFixed(2),
         },
     ]
+
+    const total = prices.reduce((total, item) => total + parseFloat(item.value), 0)
 
     const adornmentValue = (adornment, value) => (
         <>
@@ -230,7 +248,7 @@ export default function Confirmation() {
                                 </Typography>
                             </Grid>
                             <Grid item>
-                                <Chip label="€ 149.99" classes={{root: classes.chipRoot, label: classes.chipLabel}}/>
+                                <Chip label={`€ ${total.toFixed(2)}`} classes={{root: classes.chipRoot, label: classes.chipLabel}}/>
                             </Grid>
                     </Grid>
                 </Button>
