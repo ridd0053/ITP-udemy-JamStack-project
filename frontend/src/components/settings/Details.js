@@ -108,7 +108,7 @@ export default function Details({
     const [visible, setVisible] = useState(false)
         
     useEffect(() => {
-        if (noSlots) return
+        if (noSlots || user.username === "Guest") return
         if (checkout) {
             console.log(slot)
             setValues({... user.contactInfo[slot]})

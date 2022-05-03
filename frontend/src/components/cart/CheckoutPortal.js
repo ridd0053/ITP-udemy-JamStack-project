@@ -105,6 +105,7 @@ export default function CheckoutPortal({ user }) {
                     checkout
                 />
             ),
+            hasActions: true,
             error: errorHelper(detailValues, detailForBilling, billingDetails, detailSlot)
         },
         {
@@ -140,6 +141,7 @@ export default function CheckoutPortal({ user }) {
                     checkout   
                 />
             ),
+            hasActions: true,
             error: errorHelper(locationValues, locationForBilling, billingLocation, locationSlot)  
         },
         {
@@ -184,7 +186,8 @@ export default function CheckoutPortal({ user }) {
         },
         {title: 'Confirmation', 
         component: (
-        <Confirmation 
+        <Confirmation
+            user={user} 
             detailValues={detailValues}
             billingDetails={billingDetails}
             detailForBilling={detailForBilling}
@@ -213,7 +216,17 @@ export default function CheckoutPortal({ user }) {
 
     return  (
         <Grid item container direction="column" xs={6} alignItems="flex-end">
-            <CheckoutNavigation steps={steps} selectedStep={selectedStep} setSelectedStep={setSelectedStep} />
+            <CheckoutNavigation 
+            steps={steps} 
+            selectedStep={selectedStep} 
+            setSelectedStep={setSelectedStep}
+            details={detailValues}
+            detailSlot={detailSlot}
+            location={locationValues}
+            locationSlot={locationSlot}
+            setDetails={setDetailValues}
+            setLocation={setLocationValues}
+            />
             <Grid item container direction="column" alignItems="center" classes={{root: classes.stepContainer}}>
                 {steps[selectedStep].component}
             </Grid>

@@ -62,7 +62,7 @@ const useStyles = makeStyles(theme => ({
 export default function Payments({ user, slot, setSlot, checkout, saveCard, setSaveCard }) {
     const classes = useStyles({ checkout })
     
-    const card = user.paymentMethods[slot]
+    const card = user.username === "Guest" ? {last4: "", brand: ""} : user.paymentMethods[slot]
 
     return  (
         <Grid item container direction="column" lg={checkout ? 12 : 6} xs={12}  alignItems="center" classes={{root: classes.paymentContainer}} justifyContent="center">

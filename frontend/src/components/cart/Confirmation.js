@@ -1,6 +1,8 @@
 import React, { useState, useContext }  from "react"
+import axios from "axios"
 import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
@@ -94,6 +96,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Confirmation({
+    user,
     detailValues,
     billingDetails,
     detailForBilling,
@@ -104,6 +107,7 @@ export default function Confirmation({
     selectedShipping,
 }) {
     const classes = useStyles()
+    const [loading, setLoading] = useState(false)
     const { cart } = useContext(CartContext)
     const [promo, setPromo] = useState({promo: ""})
     const [promoErrors, setPromoErrors] = useState({})
@@ -188,6 +192,33 @@ export default function Confirmation({
         </>
     )
 
+    const handleOrder = () => {
+        setLoading(true)
+        axios.post(process.env.GATSBY_STRAPI_URL + "/orders/place", 
+        {
+            shippingAddress: locationValues, 
+            billingAddress: billingLocation, 
+            shippingInfo: detailValues, 
+            billingInfo: billingDetails, 
+            shippingOption: shipping,
+            subtotal: subtotal.toFixed(2),
+            tax: tax.toFixed(2),
+            total: total.toFixed(2),
+            items: cart,
+        }, 
+        {
+            headers: user.username === "Guest" ? undefined : ({
+                Authorization: `Bearer ${user.jwt}`
+            })  
+        }).then( response  => {
+            setLoading(false)
+            console.log(response)
+        }).catch( error => {
+            setLoading(false)
+            console.error(error)
+        })
+    }
+
     return  (
         <Grid item container direction="column" classes={{root: classes.mainContainer}}>
             <Grid item container>
@@ -240,7 +271,7 @@ export default function Confirmation({
                 </Grid>
             ))}
             <Grid item classes={{root: classes.buttonWrapper}}>
-                <Button classes={{root: classes.button}}>
+                <Button classes={{root: classes.button}} onClick={handleOrder}>
                     <Grid container justifyContent="space-around" alignItems="center">
                             <Grid item>
                                 <Typography variant="h5">
@@ -248,7 +279,9 @@ export default function Confirmation({
                                 </Typography>
                             </Grid>
                             <Grid item>
-                                <Chip label={`€ ${total.toFixed(2)}`} classes={{root: classes.chipRoot, label: classes.chipLabel}}/>
+                                {loading ? <CircularProgress /> : (
+                                    <Chip label={`€ ${total.toFixed(2)}`} classes={{root: classes.chipRoot, label: classes.chipLabel}}/>
+                                )} 
                             </Grid>
                     </Grid>
                 </Button>
