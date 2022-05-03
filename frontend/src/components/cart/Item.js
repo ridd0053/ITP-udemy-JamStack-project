@@ -1,9 +1,9 @@
 import React, { useState, useContext }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
-import Button  from "@material-ui/core/Button"
 import Chip  from "@material-ui/core/Chip"
 import IconButton from "@material-ui/core/IconButton"
+import  useMediaQuery  from '@material-ui/core/useMediaQuery';
 
 import QtyButton from '../products-list/QtyButton'
 
@@ -28,11 +28,18 @@ const useStyles = makeStyles(theme => ({
     id: {
         color: theme.palette.secondary.main,
         fontSize: '1rem',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '0.75rem',
+        },
     },
     actionWrapper: {
         height:"3rem",
         width:"3rem",
-        marginBottom: -8,   
+        marginBottom: -8,
+        [theme.breakpoints.down('xs')]: {
+            height:"2rem",
+            width:"2rem",
+        },   
     },
     infoContainer: {
         width:'35rem',
@@ -47,17 +54,24 @@ const useStyles = makeStyles(theme => ({
     },
     itemContainer: {
         margin: "2rem 0 2rem 2rem",
+        [theme.breakpoints.down('md')]: {
+            margin: '2rem 0',
+        },
     },
     actionButton: {
         "&:hover": {
             backgroundColor: "transparent",
-        }
+        },
+        [theme.breakpoints.down('xs')]: {
+            padding:"12px 6px",
+        },  
     }
 }))
 
 export default function Item({ item }) {
     const classes = useStyles();
     const theme = useTheme();
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
     const { dispatchCart } = useContext(CartContext)
 
     const handleDelete = () => {
@@ -67,7 +81,7 @@ export default function Item({ item }) {
     const actions = [
         {icon: FavoriteIcon, color: theme.palette.secondary.main},
         {icon: SubscribeIcon, color: theme.palette.secondary.main},
-        {icon: DeleteIcon, color: theme.palette.error.main, size:"2.5rem", onClick: handleDelete},
+        {icon: DeleteIcon, color: theme.palette.error.main, size: matchesXS ? "1.5rem" :"2.5rem", onClick: handleDelete},
     ]
 
     return  (
@@ -75,7 +89,7 @@ export default function Item({ item }) {
             <Grid item>
                 <img className={classes.productImage} src={process.env.GATSBY_STRAPI_URL + item.variant.images[0].url} alt={item.variant.id} />
             </Grid>
-            <Grid item container direction="column" justifyContent="space-between" classes={{root: classes.infoContainer}}>
+            <Grid item container direction={matchesXS ? "row" : "column"} justifyContent="space-between" classes={{root: classes.infoContainer}}>
                 <Grid item container justifyContent="space-between">
                     <Grid item>
                         <Typography variant="h5" classes={{root: classes.name}}>
@@ -95,12 +109,12 @@ export default function Item({ item }) {
                     <Chip label={`€${item.variant.price}`} />
                 </Grid>
                 <Grid item container justifyContent="space-between" alignItems="flex-end" >
-                    <Grid item xs>
+                    <Grid item xs={7} sm>
                         <Typography variant="body1" classes={{root: classes.id}}>
                             ID: {item.variant.id}
                         </Typography>
                     </Grid>
-                    <Grid item container justifyContent="flex-end" xs>
+                    <Grid item container justifyContent="flex-end" xs={5} sm>
                         {actions.map((action, i) => (
                             <Grid item key={i}>
                                 <IconButton onClick={() => action.onClick()} disableRipple classes={{root: classes.actionButton}}>

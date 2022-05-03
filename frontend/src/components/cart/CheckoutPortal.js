@@ -1,8 +1,6 @@
 import React, { useState, useEffect }  from "react"
 import Grid from "@material-ui/core/Grid"
-import Typography from "@material-ui/core/Typography"
-import Button  from "@material-ui/core/Button"
-import IconButton from "@material-ui/core/IconButton"
+import  useMediaQuery  from '@material-ui/core/useMediaQuery';
 
 
 import CheckoutNavigation from "./CheckoutNavigation"
@@ -23,6 +21,14 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: theme.palette.primary.main,
         width: "40rem",
         height: "25rem",
+        [theme.breakpoints.down('sm')]: {
+            width: "100%",
+        }, 
+    },
+    container: {
+        [theme.breakpoints.down('md')]: {
+            marginBottom:"5rem",
+        }, 
     },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
@@ -36,6 +42,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function CheckoutPortal({ user }) {
     const classes = useStyles()
+    const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
     const [selectedStep, setSelectedStep] = useState(0)
 
     const [detailValues, setDetailValues] = useState({name: "", email: "", phone:""})
@@ -226,7 +233,7 @@ export default function CheckoutPortal({ user }) {
     }, [detailSlot, locationSlot, billingSlot, selectedStep])
 
     return  (
-        <Grid item container direction="column" xs={6} alignItems="flex-end">
+        <Grid item container direction="column" lg={6} classes={{root: classes.container}} alignItems={matchesMD ? "flex-start" : "flex-end"}>
             <CheckoutNavigation 
             steps={steps} 
             selectedStep={selectedStep} 

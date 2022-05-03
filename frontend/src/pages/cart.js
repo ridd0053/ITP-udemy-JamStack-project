@@ -28,7 +28,7 @@ export default function Cart() {
         <Layout>
             <Grid container direction="column" alignItems="center" classes={{root: classes.cartContainer}}>
                 <Grid item>
-                    <Typography variant="h1">
+                    <Typography variant="h1" align="center">
                         {user.username}'s Cart
                     </Typography>
                 </Grid>

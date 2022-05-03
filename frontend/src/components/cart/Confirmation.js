@@ -22,6 +22,7 @@ import cardAdornment from "../../images/card.svg"
 import promoAdornment from "../../images/promo-code.svg"
 
 import { makeStyles } from "@material-ui/core/styles"
+import  useMediaQuery  from '@material-ui/core/useMediaQuery';
 
 
 const useStyles = makeStyles(theme => ({
@@ -40,6 +41,9 @@ const useStyles = makeStyles(theme => ({
     text: {
         fontSize: "1rem",
         color: "#fff",
+        [theme.breakpoints.down("xs")]: {
+            fontSize: "0.85rem",
+          },
     },
     card: {
         height: 18,
@@ -47,6 +51,9 @@ const useStyles = makeStyles(theme => ({
     },
     priceLabel: {
         fontSize: '1.5rem',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '0.85rem',
+        }, 
     },
     darkBackground: {
         backgroundColor: theme.palette.secondary.main,
@@ -69,9 +76,16 @@ const useStyles = makeStyles(theme => ({
     },
     priceValue: {
         marginRight: '1rem',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '0.85rem',
+            marginRight: '0.5rem',
+        },
     },
     fieldWrapper: {
         marginLeft: '1.25rem',
+        [theme.breakpoints.down('xs')]: {
+            marginLeft: '0.25rem',
+        },
     },
     button: {
         width: "100%",
@@ -97,6 +111,11 @@ const useStyles = makeStyles(theme => ({
     disabled: {
         backgroundColor: theme.palette.grey[500],
     },
+    placeOrderText: {
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '1.75rem',
+        },
+    },
     "@global": {
         ".MuiSnackbarContent-message": {
             whiteSpace: 'pre-wrap',
@@ -119,11 +138,13 @@ export default function Confirmation({
     setSelectedStep,
 }) {
     const classes = useStyles()
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
     const [loading, setLoading] = useState(false)
     const { cart, dispatchCart } = useContext(CartContext)
     const { dispatchFeedback } = useContext(FeedbackContext)
     const [promo, setPromo] = useState({promo: ""})
     const [promoErrors, setPromoErrors] = useState({})
+
 
     const shipping = shippingOptions.find(option => option.label === selectedShipping)
 
@@ -197,8 +218,8 @@ export default function Confirmation({
             <Grid item xs={2} classes={{root: classes.adornmentWrapper}}>
                 {adornment}
             </Grid>
-            <Grid item xs={10} classes={{root: classes.centerText}}>
-                <Typography variant="body1" classes={{root: classes.text}}>
+            <Grid item xs={10} classes={{root: classes.centerText}} zeroMinWidth>
+                <Typography noWrap variant="body1" classes={{root: classes.text}}>
                     {value}
                 </Typography>
             </Grid>
@@ -277,6 +298,7 @@ export default function Confirmation({
                             errors={promoErrors}
                             setErrors={setPromoErrors}
                             isWhite={true}
+                            xs={matchesXS}
                             />
                         </span>
                         ) : 
@@ -302,7 +324,7 @@ export default function Confirmation({
                 <Button disabled={cart.length === 0 || loading} classes={{root: classes.button, disabled: classes.disabled}} onClick={handleOrder}>
                     <Grid container justifyContent="space-around" alignItems="center">
                             <Grid item>
-                                <Typography variant="h5">
+                                <Typography variant="h5" classes={{root: classes.placeOrderText}}>
                                     PLACE ORDER 
                                 </Typography>
                             </Grid>
