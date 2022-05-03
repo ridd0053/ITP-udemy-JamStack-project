@@ -56,7 +56,7 @@ module.exports = {
         if (shippingValid === undefined || (serverTotal * 1.21 + shippingValid.price).toFixed(2) !== total) {
             ctx.send({error: "Invalid Cart"}, 400)
         } else if(unavailable.length > 0) {
-            ctx.send({error: "Items are unavailable"}, 409)
+            ctx.send({error: "Items are unavailable", unavailable: unavailable}, 409)
         } else {
             var order = await strapi.services.order.create({ 
                 shippingAddress, 

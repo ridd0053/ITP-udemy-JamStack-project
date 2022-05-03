@@ -8,7 +8,8 @@ import Button  from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
 
 import Fields from "../auth/Fields"
-import { CartContext } from "../../contexts"
+import { CartContext, FeedbackContext } from "../../contexts"
+import { setSnackbar, clearCart } from "../../contexts/actions"
 
 
 import confirmationIcon from "../../images/tag.svg"
@@ -93,10 +94,19 @@ const useStyles = makeStyles(theme => ({
     chipLabel: {
         color: theme.palette.secondary.main,
     },
+    disabled: {
+        backgroundColor: theme.palette.grey[500],
+    },
+    "@global": {
+        ".MuiSnackbarContent-message": {
+            whiteSpace: 'pre-wrap',
+        },
+    }
 }))
 
 export default function Confirmation({
     user,
+    setOrder,
     detailValues,
     billingDetails,
     detailForBilling,
@@ -105,10 +115,13 @@ export default function Confirmation({
     locationForBilling,
     shippingOptions,
     selectedShipping,
+    selectedStep,
+    setSelectedStep,
 }) {
     const classes = useStyles()
     const [loading, setLoading] = useState(false)
-    const { cart } = useContext(CartContext)
+    const { cart, dispatchCart } = useContext(CartContext)
+    const { dispatchFeedback } = useContext(FeedbackContext)
     const [promo, setPromo] = useState({promo: ""})
     const [promoErrors, setPromoErrors] = useState({})
 
@@ -212,10 +225,25 @@ export default function Confirmation({
             })  
         }).then( response  => {
             setLoading(false)
-            console.log(response)
+            dispatchCart(clearCart())
+            setOrder(response.data.order)
+
+            setSelectedStep(selectedStep + 1 )
         }).catch( error => {
             setLoading(false)
             console.error(error)
+            switch(error.response.status) {
+                case 400:
+                    dispatchFeedback(setSnackbar({ status: 'error', message: 'Invalid Cart' }))
+                    break
+                case 409:
+                    dispatchFeedback(setSnackbar({ status: 'error', message:  `The following items are not available at the requested quantity. Please update your cart and try again.\n` + 
+                    `${error.response.data.unavailable.map(item => (`\nItem: ${item.id}, Available: ${item.qty}`))}` }))
+                    break
+                default:
+                    dispatchFeedback(setSnackbar({ status: 'error', message: 'Something went wrong, pleas refresh your page and try again. You have not been charged.' }))
+                    break
+            }
         })
     }
 
@@ -271,7 +299,7 @@ export default function Confirmation({
                 </Grid>
             ))}
             <Grid item classes={{root: classes.buttonWrapper}}>
-                <Button classes={{root: classes.button}} onClick={handleOrder}>
+                <Button disabled={cart.length === 0 || loading} classes={{root: classes.button, disabled: classes.disabled}} onClick={handleOrder}>
                     <Grid container justifyContent="space-around" alignItems="center">
                             <Grid item>
                                 <Typography variant="h5">
