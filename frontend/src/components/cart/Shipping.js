@@ -45,6 +45,7 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.secondary.main,
     },
     container: {
+        display: ({selectedStep, stepNumber}) => selectedStep !== stepNumber ? "none" : "flex",
         height:"100%",
     },
     icon: {
@@ -53,8 +54,8 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Shipping({ selectedShipping, setSelectedShipping, shippingOptions }) {
-    const classes = useStyles()
+export default function Shipping({ selectedShipping, setSelectedShipping, shippingOptions, selectedStep, stepNumber }) {
+    const classes = useStyles({selectedStep, stepNumber})
 
     return  (
         <Grid item container classes={{root: classes.container}} direction="column" alignItems="center" justifyContent="center">

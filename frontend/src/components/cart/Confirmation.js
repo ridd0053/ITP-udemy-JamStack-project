@@ -102,6 +102,7 @@ const useStyles = makeStyles(theme => ({
         marginTop: 'auto',
     },
     mainContainer: {
+        display: ({selectedStep, stepNumber}) => selectedStep !== stepNumber ? "none" : "flex",
         height: "100%",
     },
     chipRoot: {
@@ -139,8 +140,9 @@ export default function Confirmation({
     selectedShipping,
     selectedStep,
     setSelectedStep,
+    stepNumber
 }) {
-    const classes = useStyles()
+    const classes = useStyles({ selectedStep, stepNumber })
     const stripe = useStripe()
     const elements = useElements()
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
@@ -209,7 +211,7 @@ export default function Confirmation({
         },
         {
             label: "SHIPPING",
-            value: shipping.price
+            value: shipping?.price.toFixed(2),
         },
         {
             label: "TAX",
@@ -234,66 +236,92 @@ export default function Confirmation({
 
     const handleOrder = async () => {
         setLoading(true)
-
+    
         const idempotencyKey = uuidv4()
-
+    
         const cardElement = elements.getElement(CardElement)
-
-        const result = await stripe.confirmCardPayment(clientSecret, {
+    
+        const result = await stripe.confirmCardPayment(
+          clientSecret,
+          {
             payment_method: {
-                card: cardElement,
-                billing_details: {
-                    address: {
-                        city: billingLocation.city,
-                        state: billingLocation.state,
-                        line1: billingLocation.street,
-                    },
-                    email: billingDetails.email,
-                    name: billingDetails.name,
-                    phone: billingDetails.phone,
-
-                }
-            }
-        }, { idempotencyKey })
-
-        if ( result.error ) {
-            console.error(result.error.message)
-            dispatchFeedback(setSnackbar({status: 'error', message: result.error.message}))
-            setLoading(false)
+              card: cardElement,
+              billing_details: {
+                address: {
+                  city: billingLocation.city,
+                  state: billingLocation.state,
+                  line1: billingLocation.street,
+                },
+                email: billingDetails.email,
+                name: billingDetails.name,
+                phone: billingDetails.phone,
+              },
+            },
+          },
+          { idempotencyKey }
+        )
+    
+        if (result.error) {
+          console.error(result.error.message)
+          dispatchFeedback(
+            setSnackbar({ status: "error", message: result.error.message })
+          )
+          setLoading(false)
         } else if (result.paymentIntent.status === "succeeded") {
-            console.log("PAYMENT SUCCESSFUL")
+          axios
+            .post(
+              process.env.GATSBY_STRAPI_URL + "/orders/finalize",
+              {
+                shippingAddress: locationValues,
+                billingAddress: billingLocation,
+                shippingInfo: detailValues,
+                billingInfo: billingDetails,
+                shippingOption: shipping,
+                subtotal: subtotal.toFixed(2),
+                tax: tax.toFixed(2),
+                total: total.toFixed(2),
+                items: cart,
+                transaction: result.paymentIntent.id,
+              },
+              {
+                headers:
+                  user.username === "Guest"
+                    ? undefined
+                    : { Authorization: `Bearer ${user.jwt}` },
+              }
+            )
+            .then(response => {
+              setLoading(false)
+              dispatchCart(clearCart())
+    
+              localStorage.removeItem("intentID")
+              setClientSecret(null)
+    
+              setOrder(response.data.order)
+              setSelectedStep(selectedStep + 1)
+            })
+            .catch(error => {
+              setLoading(false)
+              console.error(error)
+              console.log("FAILED PAYMENT INTENT", result.paymentIntent.id)
+              console.log("FAILED CART", cart)
+    
+              localStorage.removeItem("intentID")
+              setClientSecret(null)
+    
+              dispatchFeedback(
+                setSnackbar({
+                  status: "error",
+                  message:
+                    "There was a problem saving your order. Please keep this screen open and contact support.",
+                })
+              )
+            })
         }
-
-        // axios.post(process.env.GATSBY_STRAPI_URL + "/orders/finalize", 
-        // {
-        //     shippingAddress: locationValues, 
-        //     billingAddress: billingLocation, 
-        //     shippingInfo: detailValues, 
-        //     billingInfo: billingDetails, 
-        //     shippingOption: shipping,
-        //     subtotal: subtotal.toFixed(2),
-        //     tax: tax.toFixed(2),
-        //     total: total.toFixed(2),
-        //     items: cart,
-        // }, 
-        // {
-        //     headers: user.username === "Guest" ? undefined : ({
-        //         Authorization: `Bearer ${user.jwt}`
-        //     })  
-        // }).then( response  => {
-        //     setLoading(false)
-        //     dispatchCart(clearCart())
-        //     setOrder(response.data.order)
-
-        //     setSelectedStep(selectedStep + 1 )
-        // }).catch( error => {
-        //     setLoading(false)
-        //     console.error(error)
-        // })
-    }
+      }
 
     useEffect(() => {
-        if( !order && cart.length !== 0 ) {
+        if( !order && cart.length !== 0 && selectedStep === stepNumber ) {
             const storedIntent = localStorage.getItem("intentID")
             const idempotencyKey = uuidv4()
             setClientSecret(null)
@@ -324,12 +352,12 @@ export default function Confirmation({
                         `${error.response.data.unavailable.map(item => (`\nItem: ${item.id}, Available: ${item.qty}`))}` }))
                         break
                     default:
-                        dispatchFeedback(setSnackbar({ status: 'error', message: 'Something went wrong, pleas refresh your page and try again. You have not been charged.' }))
+                        dispatchFeedback(setSnackbar({ status: 'error', message: 'Something went wrong, please refresh your page and try again. You have not been charged.' }))
                         break
                 }
             })
         } 
-    }, [cart])
+    }, [cart, selectedStep, stepNumber])
 
     console.log("CLIENT SECRET", clientSecret)
 
@@ -338,7 +366,7 @@ export default function Confirmation({
             <Grid item container>
                 <Grid item container direction="column" xs={7}>
                 {firstFields.map( (field, i) => (
-                    <Grid item container key={field.value} alignItems="center" classes={{root: clsx(classes.fieldRow, {
+                    <Grid item container key={i} alignItems="center" classes={{root: clsx(classes.fieldRow, {
                         [classes.darkBackground]: i % 2 !== 0
                     })}}>
                         {adornmentValue(field.adornment, field.value)}

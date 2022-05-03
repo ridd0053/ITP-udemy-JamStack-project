@@ -30,6 +30,7 @@ const useStyles = makeStyles(theme => ({
         },
     },
     mainContainer: {
+        display: ({selectedStep, stepNumber}) => selectedStep !== stepNumber ? "none" : "flex",
         height: "100%",
         position: "relative",
     },
@@ -48,8 +49,8 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function ThankYou({ order, selectedShipping }) {
-    const classes = useStyles()
+export default function ThankYou({ order, selectedShipping, stepNumber, selectedStep }) {
+    const classes = useStyles({ selectedStep, stepNumber })
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
     const addToDate = days => {
@@ -86,7 +87,7 @@ export default function ThankYou({ order, selectedShipping }) {
                 <Grid item container justifyContent={matchesXS ? "space-around" : "space-between"} alignItems="center">
                     <Grid item>
                         <Typography variant="body2" classes={{root: classes.order}}>
-                            Order #{order.id.slice(order.id.length - 10, order.id.length)}
+                            Order #{order?.id.slice(order.id.length - 10, order.id.length)}
                         </Typography>
                     </Grid>
                     <Grid item>

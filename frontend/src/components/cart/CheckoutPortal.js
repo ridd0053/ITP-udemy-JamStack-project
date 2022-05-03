@@ -117,6 +117,7 @@ export default function CheckoutPortal({ user }) {
                     setBilling={setDetailForBilling}
                     billingValues={billingDetails}
                     setBillingValues={setBillingDetails}
+                    selectedStep={selectedStep}
                     checkout
                 />
             ),
@@ -132,6 +133,7 @@ export default function CheckoutPortal({ user }) {
                     setValues={setBillingDetails}
                     errors={errors}
                     setErrors={setErrors}
+                    selectedStep={selectedStep}
                     checkout
                     noSlots 
                 />
@@ -153,6 +155,7 @@ export default function CheckoutPortal({ user }) {
                     setBilling={setLocationForBilling} 
                     billingValues={billingLocation}
                     setBillingValues={setBillingLocation}  
+                    selectedStep={selectedStep}
                     checkout   
                 />
             ),
@@ -168,6 +171,7 @@ export default function CheckoutPortal({ user }) {
                     setValues={setBillingLocation}
                     errors={errors}
                     setErrors={setErrors}
+                    selectedStep={selectedStep}
                     checkout
                     noSlots   
                 />
@@ -181,6 +185,7 @@ export default function CheckoutPortal({ user }) {
                 selectedShipping={selectedShipping}
                 setSelectedShipping={setSelectedShipping}
                 shippingOptions={shippingOptions}
+                selectedStep={selectedStep}
             />
             ),
             error: selectedShipping === null
@@ -195,6 +200,7 @@ export default function CheckoutPortal({ user }) {
                     saveCard={saveCard}
                     setSaveCard={setSaveCard}
                     setCardError={setCardError}
+                    selectedStep={selectedStep}
                     checkout
                 />
             ),
@@ -224,6 +230,7 @@ export default function CheckoutPortal({ user }) {
             component: <ThankYou
             order={order}
             selectedShipping={selectedShipping}
+            selectedStep={selectedStep}
              />
         }
     ]
@@ -255,7 +262,7 @@ export default function CheckoutPortal({ user }) {
             />
             <Grid item container direction="column" alignItems="center" classes={{root: classes.stepContainer}}>
                 <Elements stripe={stripePromise}>
-                    {steps[selectedStep].component}
+                    {steps.map((step, i)  => React.cloneElement(step.component, {stepNumber: i, key: i}))}
                 </Elements>
             </Grid>
             {steps[selectedStep].title === "Confirmation" && (
