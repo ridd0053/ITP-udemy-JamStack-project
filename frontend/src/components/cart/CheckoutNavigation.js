@@ -55,8 +55,9 @@ const useStyles = makeStyles(theme => ({
         right: 0,
     },
     iconButton: {
-        padding: 6,
-        
+        [theme.breakpoints.down('xs')]: {
+            padding: 6,
+        }
     },
     text: {
         [theme.breakpoints.down('xs')]: {

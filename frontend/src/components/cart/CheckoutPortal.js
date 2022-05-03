@@ -1,6 +1,8 @@
 import React, { useState, useEffect }  from "react"
 import Grid from "@material-ui/core/Grid"
 import  useMediaQuery  from '@material-ui/core/useMediaQuery';
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 
 
 import CheckoutNavigation from "./CheckoutNavigation"
@@ -40,6 +42,8 @@ const useStyles = makeStyles(theme => ({
       },
 }))
 
+const stripePromise = loadStripe(process.env.GATSBY_STRIPE_PK)
+
 export default function CheckoutPortal({ user }) {
     const classes = useStyles()
     const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
@@ -56,6 +60,7 @@ export default function CheckoutPortal({ user }) {
     const [locationForBilling, setLocationForBilling] = useState(false)
 
     const [billingSlot, setBillingSlot] = useState(0)
+    const [cardError, setCardError] = useState(true)
     const [ saveCard, setSaveCard ] = useState(false)
 
     const [order, setOrder] = useState(null)
@@ -189,15 +194,17 @@ export default function CheckoutPortal({ user }) {
                     setSlot={setBillingSlot}
                     saveCard={saveCard}
                     setSaveCard={setSaveCard}
+                    setCardError={setCardError}
                     checkout
                 />
             ),
-            error: false
+            error: cardError
         },
         {title: 'Confirmation', 
         component: (
         <Confirmation
             user={user}
+            order={order}
             setOrder={setOrder} 
             detailValues={detailValues}
             billingDetails={billingDetails}
@@ -247,7 +254,9 @@ export default function CheckoutPortal({ user }) {
             setErrors={setErrors}
             />
             <Grid item container direction="column" alignItems="center" classes={{root: classes.stepContainer}}>
-                {steps[selectedStep].component}
+                <Elements stripe={stripePromise}>
+                    {steps[selectedStep].component}
+                </Elements>
             </Grid>
             {steps[selectedStep].title === "Confirmation" && (
             <BillingConfirmation

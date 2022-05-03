@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect }  from "react"
 import clsx from 'clsx'
 import Grid from "@material-ui/core/Grid"
+import { Elements } from "@stripe/react-stripe-js"
+import { loadStripe } from "@stripe/stripe-js"
 import Typography from "@material-ui/core/Typography"
 
 import Details from "./Details"
@@ -22,6 +24,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+const stripePromise = loadStripe(process.env.GATSBY_STRIPE_PK)
 export default function Settings({ setSelectedSetting }) {
     const classes = useStyles()
 
@@ -67,7 +70,9 @@ export default function Settings({ setSelectedSetting }) {
         <>
             <Grid container classes={{root: classes.sectionContainer}}>
                 <Details user={user} edit={edit} setChangesMade={setChangesMade} values={detailValues} setValues={setDetailValues} slot={detailSlot} setSlot={setDetailSlot} errors={detailErrors} setErrors={setDetailErrors} />
-                <Payments user={user} edit={edit} slot={billingSlot} setSlot={setBillingSlot} />
+                <Elements stripe={stripePromise}>
+                    <Payments user={user} edit={edit} slot={billingSlot} setSlot={setBillingSlot} />
+                </Elements>
             </Grid>
             <Grid container classes={{root: clsx(classes.bottomRow, classes.sectionContainer)}}>
                 <Location user={user} edit={edit} setChangesMade={setChangesMade} values={locationValues} setValues={setLocationValues} slot={locationSlot} setSlot={setLocationSlot} errors={locationErrors} setErrors={setLocationErrors} />
