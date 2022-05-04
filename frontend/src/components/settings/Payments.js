@@ -1,22 +1,33 @@
-import React, { useState, useEffect }  from "react"
+import React, { useState, useEffect, useContext }  from "react"
+import clsx from "clsx"
+import axios from "axios"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import Switch from "@material-ui/core/Switch"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import  { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 
 import Slots from "./Slots"
+import { FeedbackContext, UserContext } from "../../contexts"
+import { setSnackbar, setUser } from "../../contexts/actions"
+
 
 import cardIcon from '../../images/card.svg'
 
 import { makeStyles } from "@material-ui/core/styles"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 
 
 const useStyles = makeStyles(theme => ({
     number: {
         color: "#fff",
         marginBottom: '5rem',
+        [theme.breakpoints.down('xs')]: { 
+            marginBottom: ({ checkout }) => (checkout ? '1.5rem' : undefined),
+            fontSize: ({ checkout }) => (checkout ? '1.5rem' : undefined),
+        },
     },
     removeCard: {
         backgroundColor: "#fff",
@@ -25,6 +36,9 @@ const useStyles = makeStyles(theme => ({
         marginLeft: '2rem',
         "&:hover": {
             backgroundColor: '#fff',
+        },
+        [theme.breakpoints.down('xs')]: { 
+            marginLeft: ({ checkout }) => (checkout ? 0 : undefined),
         },
     },
     removeCardText: {
@@ -36,7 +50,7 @@ const useStyles = makeStyles(theme => ({
     icon: {
         marginBottom: '3rem',
         [theme.breakpoints.down('xs')]: { 
-            marginBottom: '1rem',
+            marginBottom: ({ checkout }) => checkout ? '3rem' : '1rem',
         },
     },
     paymentContainer: {
@@ -58,12 +72,28 @@ const useStyles = makeStyles(theme => ({
     switchLabel: {
         color: "#fff",
         fontWeight: 600,
+        [theme.breakpoints.down('xs')]: { 
+            fontSize: '1.25rem',
+        },
+        
     },
     form: {
         width: '75%',
         borderBottom: '2px solid #fff',
         height: '2rem',
         marginTop: '-1rem',
+        [theme.breakpoints.down('xs')]: { 
+            width: '85%',
+        },
+    },
+    spinner: {
+        marginLeft: "3rem",
+    },
+    switchItem: {
+        width: "100%",
+    },
+    numberWrapper: {
+        marginBottom: '6rem',
     },
 }))
 
@@ -80,11 +110,57 @@ export default function Payments({
     stepNumber,
     }) {
     const classes = useStyles({ checkout, selectedStep, stepNumber })
+    const matchesXS = useMediaQuery(theme => theme.breakpoints.down("xs"))
     const stripe = useStripe()
     const elements = useElements()
+    const [loading, setLoading] = useState(false)
+    const { dispatchFeedback } = useContext(FeedbackContext)
+    const { dispatchUser } = useContext(UserContext)
     
     const card = user.username === "Guest" ? {last4: "", brand: ""} : user.paymentMethods[slot]
 
+    const removeCard = () => {
+        setLoading(true)
+    
+        axios
+          .post(
+            process.env.GATSBY_STRAPI_URL + "/orders/removeCard",
+            {
+              card: card.last4,
+            },
+            {
+              headers: { Authorization: `Bearer ${user.jwt}` },
+            }
+          )
+          .then(response => {
+            setLoading(false)
+            dispatchUser(
+              setUser({ ...response.data.user, jwt: user.jwt, onboarding: true })
+            )
+            setCardError(true)
+            setCard({ brand: "", last4: "" })
+            dispatchFeedback(
+                setSnackbar({
+                  status: "success",
+                  message:
+                    "Card successfully removed",
+                })
+              )
+          })
+          .catch(error => {
+            setLoading(false)
+            console.error(error)
+    
+            dispatchFeedback(
+              setSnackbar({
+                status: "error",
+                message:
+                  "There was a problem removing your card. Please try again.",
+              })
+            )
+          })
+      }
+    
     const handleSubmit = async event => {
         event.preventDefault()
         if(!stripe || !elements) return
@@ -134,7 +210,9 @@ export default function Payments({
             <Grid item>
                 <img src={cardIcon} alt="payment settings" className={classes.icon} />
             </Grid>
-            <Grid item container justifyContent="center">
+            <Grid item container justifyContent="center" classes={{root: clsx({
+                [classes.numberWrapper]: checkout && matchesXS
+            })}}>
                 { checkout && !card.last4 ? cardWrapper : null }
                 <Grid item>
                     <Typography variant="h3" align="center" classes={{root: classes.number}}>
@@ -144,20 +222,34 @@ export default function Payments({
                     </Typography>
                 </Grid>
                 {   card.last4 && 
-                    <Grid item>
-                        <Button variant='contained' classes={{root: classes.removeCard}}>
+                    <Grid item classes={{root: clsx({
+                        [classes.spinner]: loading
+                        })}}>
+                        {loading ? <CircularProgress color="secondary" /> : (
+                        <Button onClick={removeCard} variant='contained' classes={{root: classes.removeCard}}>
                             <Typography variant="h6" classes={{root: classes.removeCardText}}>
                                 remove card 
                             </Typography>
                         </Button>
+                        )}
                 </Grid>
                 }
             </Grid>
             <Grid item container classes={{root: classes.slotContainer}} justifyContent={checkout ? "space-between" : undefined}>
                 <Slots slot={slot} setSlot={setSlot} noLabel/>
                 {checkout && user.username !== "Guest" && (
-                    <Grid item>
-                        <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Save Card For Future Use " labelPlacement="start" control={<Switch checked={saveCard} onChange={() => setSaveCard(!saveCard)} color="secondary" />} />
+                    <Grid item classes={{root: clsx({
+                        [classes.switchItem]: matchesXS
+                    })}}>
+                        <FormControlLabel 
+                        classes={{root: classes.switchWrapper, label: classes.switchLabel}} 
+                        label="Save Card For Future Use" labelPlacement="start" 
+                        control={
+                        <Switch
+                        disabled={user.paymentMethods[slot].last4 !== ""} 
+                        checked={user.paymentMethods[slot].last4 !== "" ? true : saveCard} 
+                        onChange={() => setSaveCard(!saveCard)} 
+                        color="secondary" />} />
                     </Grid>
                 )}
             </Grid>

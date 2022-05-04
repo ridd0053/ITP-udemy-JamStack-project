@@ -165,6 +165,14 @@
       });
   
       order = sanitizeEntity(order, { model: strapi.models.order });
+
+      const confirmation = await strapi.services.order.confirmationEmail(order);
+
+      await strapi.plugins["email"].services.email.send({
+        to: order.billingInfo.email,
+        subject: "VAR-X Order Confirmation",
+        html: confirmation,
+      });
   
       if (order.user.username === "Guest") {
         order.user = { username: "Guest" };
@@ -173,25 +181,33 @@
       ctx.send({ order }, 200);
     },
     async removeCard(ctx) {
-      const { card } = ctx.request.body
-      const { stripeID } = ctx.state.user
-
-      const stripeMethods = await stripe.paymentMethods.list(
-        {customer: stripeID, type: "card"})
-      
-      const stripeCard = stripeMethods.data.find(method => method.card.last4 === card)
-
-      await stripe.paymentMethods.detach(stripeCard.id)
-
-      let newMethods = [...ctx.state.user.paymentMethods]
-
-      const cardSlot = newMethods.findIndex(method => method.last4 === card)
-      newMethods[cardSlot] = {brand: "", last4: ""}
-
-      const newUser = await strapi.plugins["users-permissions"].services.user.edit(
-        {id: state.user.id}, 
-        {paymentMethods: newMethods}
-        )
-      ctx.send({user: sanitizeUser(newUser)}, 200)
+      const { card } = ctx.request.body;
+      const { stripeID } = ctx.state.user;
+  
+      const stripeMethods = await stripe.paymentMethods.list({
+        customer: stripeID,
+        type: 'card',
+      });
+  
+      const stripeCard = stripeMethods.data.find(
+        (method) => method.card.last4 === card
+      );
+  
+      await stripe.paymentMethods.detach(stripeCard.id);
+  
+      let newMethods = [...ctx.state.user.paymentMethods];
+  
+      const cardSlot = newMethods.findIndex((method) => method.last4 === card);
+  
+      newMethods[cardSlot] = { brand: "", last4: "" };
+  
+      const newUser = await strapi.plugins[
+        "users-permissions"
+      ].services.user.edit(
+        { id: ctx.state.user.id },
+        { paymentMethods: newMethods }
+      );
+  
+      ctx.send({ user: sanitizeUser(newUser) }, 200);
     },
   };
