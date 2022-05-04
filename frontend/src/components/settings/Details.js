@@ -116,7 +116,6 @@ export default function Details({
     useEffect(() => {
         if (noSlots || user.username === "Guest") return
         if (checkout) {
-            console.log(slot)
             setValues({... user.contactInfo[slot]})
         } else {
             setValues({... user.contactInfo[slot], password:"********"})

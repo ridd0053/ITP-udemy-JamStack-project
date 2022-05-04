@@ -8,6 +8,8 @@ import useResizeAware from 'react-resize-aware'
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 
 import Settings from "./Settings"
+import OrderHistory from "./OrderHistory"
+
 import { UserContext } from "../../contexts"
 import { setUser } from '../../contexts/actions'
 
@@ -19,6 +21,7 @@ import subscriptionIcon from '../../images/subscription.svg'
 import background from '../../images/repeating-smallest.svg'
 
 import { makeStyles } from "@material-ui/core/styles"
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -58,6 +61,7 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         backgroundColor: theme.palette.primary.main,
+        display: 'flex',
     },
     addHover: {
         "&:hover": {
@@ -87,8 +91,8 @@ export default function SettingsPortal() {
     const buttonHeight = matchesMD ? "22rem" : matchesLG ? "18rem" : "22rem"
 
     const buttons = [
-        {label: "Settings", icon: settingsIcon, component: Settings},
-        {label: "Order history", icon: orderHistoryIcon},
+        {label: "Settings", icon: settingsIcon, component: Settings, large: true},
+        {label: "Order history", icon: orderHistoryIcon, component: OrderHistory},
         {label: "Favorites", icon: favoritesIcon},
         {label: "Subscription", icon: subscriptionIcon},
     ]
@@ -113,7 +117,7 @@ export default function SettingsPortal() {
                 delay: selectedSetting !== null ? 0 : 600,
             }
             const size = {
-                height: selectedSetting === button.label ? matchesMD ? '120rem' : '60rem' : buttonHeight,
+                height: selectedSetting === button.label ? matchesMD && button.large ? '120rem' : '60rem' : buttonHeight,
                 width: selectedSetting === button.label ? `${sizes.width}px` : buttonWidth,
                 borderRadius: selectedSetting === button.label ? 0 : 25,
                 delay: selectedSetting !== null ? 600 : 0,
