@@ -3,7 +3,6 @@ import clsx from 'clsx'
 import Grid from "@material-ui/core/Grid"
 import { Elements } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
-import Typography from "@material-ui/core/Typography"
 
 import Details from "./Details"
 import Payments from "./Payments"

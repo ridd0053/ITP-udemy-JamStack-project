@@ -10,8 +10,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
 
 import Fields from "../auth/Fields"
-import { CartContext, FeedbackContext } from "../../contexts"
-import { setSnackbar, clearCart } from "../../contexts/actions"
+import { CartContext, FeedbackContext, UserContext } from "../../contexts"
+import { setSnackbar, clearCart, setUser } from "../../contexts/actions"
 
 
 import confirmationIcon from "../../images/tag.svg"
@@ -140,7 +140,10 @@ export default function Confirmation({
     selectedShipping,
     selectedStep,
     setSelectedStep,
-    stepNumber
+    stepNumber,
+    saveCard,
+    card,
+    cardSlot,
 }) {
     const classes = useStyles({ selectedStep, stepNumber })
     const stripe = useStripe()
@@ -152,6 +155,7 @@ export default function Confirmation({
     const { dispatchFeedback } = useContext(FeedbackContext)
     const [promo, setPromo] = useState({promo: ""})
     const [promoErrors, setPromoErrors] = useState({})
+    const { dispatchUser } = useContext(UserContext)
 
 
     const shipping = shippingOptions.find(option => option.label === selectedShipping)
@@ -190,7 +194,7 @@ export default function Confirmation({
             <img src={zipAdornment} alt="zip code, city, state" />
         )
         },
-        { value: '**** **** **** 1234',
+        { value: `${card.brand.toUpperCase()} ${card.last4}`,
         adornment: (
             <img src={cardAdornment} alt="credit card" className={classes.card} />
         )
@@ -237,6 +241,8 @@ export default function Confirmation({
     const handleOrder = async () => {
         setLoading(true)
     
+        const savedCard = user.jwt && user.paymentMethods[cardSlot].last4 !== ""
+    
         const idempotencyKey = uuidv4()
     
         const cardElement = elements.getElement(CardElement)
@@ -244,19 +250,22 @@ export default function Confirmation({
         const result = await stripe.confirmCardPayment(
           clientSecret,
           {
-            payment_method: {
-              card: cardElement,
-              billing_details: {
-                address: {
-                  city: billingLocation.city,
-                  state: billingLocation.state,
-                  line1: billingLocation.street,
+            payment_method: savedCard
+              ? undefined
+              : {
+                  card: cardElement,
+                  billing_details: {
+                    address: {
+                      city: billingLocation.city,
+                      state: billingLocation.state,
+                      line1: billingLocation.street,
+                    },
+                    email: billingDetails.email,
+                    name: billingDetails.name,
+                    phone: billingDetails.phone,
+                  },
                 },
-                email: billingDetails.email,
-                name: billingDetails.name,
-                phone: billingDetails.phone,
-              },
-            },
+            setup_future_usage: saveCard ? "off_session" : undefined,
           },
           { idempotencyKey }
         )
@@ -282,6 +291,9 @@ export default function Confirmation({
                 total: total.toFixed(2),
                 items: cart,
                 transaction: result.paymentIntent.id,
+                paymentMethod: card,
+                saveCard,
+                cardSlot,
               },
               {
                 headers:
@@ -291,6 +303,12 @@ export default function Confirmation({
               }
             )
             .then(response => {
+              if (saveCard) {
+                let newUser = { ...user }
+                newUser.paymentMethods[cardSlot] = card
+                dispatchUser(setUser(newUser))
+              }
+    
               setLoading(false)
               dispatchCart(clearCart())
     
@@ -319,47 +337,72 @@ export default function Confirmation({
             })
         }
       }
-
-    useEffect(() => {
-        if( !order && cart.length !== 0 && selectedStep === stepNumber ) {
-            const storedIntent = localStorage.getItem("intentID")
-            const idempotencyKey = uuidv4()
-            setClientSecret(null)
-
-            axios.post(process.env.GATSBY_STRAPI_URL + '/orders/process', 
-            {
+    
+      useEffect(() => {
+        if (!order && cart.length !== 0 && selectedStep === stepNumber) {
+          const storedIntent = localStorage.getItem("intentID")
+          const idempotencyKey = uuidv4()
+    
+          setClientSecret(null)
+    
+          axios
+            .post(
+              process.env.GATSBY_STRAPI_URL + "/orders/process",
+              {
                 items: cart,
                 total: total.toFixed(2),
                 shippingOption: shipping,
                 idempotencyKey,
                 storedIntent,
                 email: detailValues.email,
-            }, 
-            {
-                headers: user.jwt ? {Authorization: `Bearer ${user.jwt}`} : undefined
-                
-            }).then(response => {
-                setClientSecret(response.data.client_secret)
-                localStorage.setItem("intentID", response.data.intentID)
-            }).catch(error => {
-                console.error(error)
-                switch(error.response.status) {
-                    case 400:
-                        dispatchFeedback(setSnackbar({ status: 'error', message: 'Invalid Cart' }))
-                        break
-                    case 409:
-                        dispatchFeedback(setSnackbar({ status: 'error', message:  `The following items are not available at the requested quantity. Please update your cart and try again.\n` + 
-                        `${error.response.data.unavailable.map(item => (`\nItem: ${item.id}, Available: ${item.qty}`))}` }))
-                        break
-                    default:
-                        dispatchFeedback(setSnackbar({ status: 'error', message: 'Something went wrong, please refresh your page and try again. You have not been charged.' }))
-                        break
-                }
+                savedCard:
+                  user.jwt && user.paymentMethods[cardSlot].last4 !== ""
+                    ? card.last4
+                    : undefined,
+              },
+              {
+                headers: user.jwt
+                  ? { Authorization: `Bearer ${user.jwt}` }
+                  : undefined,
+              }
+            )
+            .then(response => {
+              setClientSecret(response.data.client_secret)
+              localStorage.setItem("intentID", response.data.intentID)
             })
-        } 
-    }, [cart, selectedStep, stepNumber])
-
-    console.log("CLIENT SECRET", clientSecret)
+            .catch(error => {
+              console.error(error)
+    
+              switch (error.response.status) {
+                case 400:
+                  dispatchFeedback(
+                    setSnackbar({ status: "error", message: "Invalid Cart" })
+                  )
+                  break
+                case 409:
+                  dispatchFeedback(
+                    setSnackbar({
+                      status: "error",
+                      message:
+                        `The following items are not available at the requested quantity. Please update your cart and try again.\n` +
+                        `${error.response.data.unavailable.map(
+                          item => `\nItem: ${item.id}, Available: ${item.qty}`
+                        )}`,
+                    })
+                  )
+                  break
+                default:
+                  dispatchFeedback(
+                    setSnackbar({
+                      status: "error",
+                      message:
+                        "Something went wrong, please refresh the page and try again. You have NOT been charged.",
+                    })
+                  )
+              }
+            })
+        }
+      }, [cart, selectedStep, stepNumber])
 
     return  (
         <Grid item container direction="column" classes={{root: classes.mainContainer}}>

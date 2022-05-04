@@ -59,9 +59,10 @@ export default function CheckoutPortal({ user }) {
     const [locationSlot, setLocationSlot] = useState(0)
     const [locationForBilling, setLocationForBilling] = useState(false)
 
-    const [billingSlot, setBillingSlot] = useState(0)
+    const [cardSlot, setCardSlot] = useState(0)
     const [cardError, setCardError] = useState(true)
-    const [ saveCard, setSaveCard ] = useState(false)
+    const [saveCard, setSaveCard ] = useState(false)
+    const [card, setCard ] = useState({brand: "", last4: ""})
 
     const [order, setOrder] = useState(null)
 
@@ -195,12 +196,13 @@ export default function CheckoutPortal({ user }) {
             component: (
                 <Payments 
                     user={user}
-                    slot={billingSlot}
-                    setSlot={setBillingSlot}
+                    slot={cardSlot}
+                    setSlot={setCardSlot}
                     saveCard={saveCard}
                     setSaveCard={setSaveCard}
                     setCardError={setCardError}
                     selectedStep={selectedStep}
+                    setCard={setCard}
                     checkout
                 />
             ),
@@ -222,6 +224,9 @@ export default function CheckoutPortal({ user }) {
             selectedShipping={selectedShipping}
             selectedStep={selectedStep}
             setSelectedStep={setSelectedStep}
+            saveCard={saveCard}
+            card={card}
+            cardSlot={cardSlot}
         />
         ),
         },
@@ -244,7 +249,7 @@ export default function CheckoutPortal({ user }) {
 
     useEffect(() => {
         setErrors({})
-    }, [detailSlot, locationSlot, billingSlot, selectedStep])
+    }, [detailSlot, locationSlot, cardSlot, selectedStep])
 
     return  (
         <Grid item container direction="column" lg={6} classes={{root: classes.container}} alignItems={matchesMD ? "flex-start" : "flex-end"}>

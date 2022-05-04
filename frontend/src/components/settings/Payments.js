@@ -1,4 +1,4 @@
-import React, { useState }  from "react"
+import React, { useState, useEffect }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Button  from "@material-ui/core/Button"
@@ -76,6 +76,7 @@ export default function Payments({
     setSaveCard, 
     setCardError,
     selectedStep,
+    setCard,
     stepNumber,
     }) {
     const classes = useStyles({ checkout, selectedStep, stepNumber })
@@ -91,6 +92,10 @@ export default function Payments({
     }
     const handleCardChange = async event => {
         if (event.complete) {
+            const cardElement = elements.getElement(CardElement)
+            const { error, paymentMethod } = await stripe.createPaymentMethod({ 
+                type: "card", card: cardElement})
+            setCard({brand: paymentMethod.card.brand, last4: paymentMethod.card.last4})
             setCardError(false)
         } else {
             setCardError(true)
@@ -111,6 +116,18 @@ export default function Payments({
             }}} onChange={handleCardChange} />
         </form>
     )
+
+    useEffect(() => {
+        if ( !checkout || !user.jwt )  return
+        if ( user.paymentMethods[slot].last4 !== "" ) {
+            setCard(user.paymentMethods[slot])
+            setCardError(false)
+        } else {
+            setCard({brand: "", last4: ""})
+            setCardError(true)
+        }
+    }, 
+    [slot])
 
     return  (
         <Grid item container direction="column" lg={checkout ? 12 : 6} xs={12}  alignItems="center" classes={{root: classes.paymentContainer}} justifyContent="center">
@@ -138,7 +155,7 @@ export default function Payments({
             </Grid>
             <Grid item container classes={{root: classes.slotContainer}} justifyContent={checkout ? "space-between" : undefined}>
                 <Slots slot={slot} setSlot={setSlot} noLabel/>
-                {checkout && (
+                {checkout && user.username !== "Guest" && (
                     <Grid item>
                         <FormControlLabel classes={{root: classes.switchWrapper, label: classes.switchLabel}} label="Save Card For Future Use " labelPlacement="start" control={<Switch checked={saveCard} onChange={() => setSaveCard(!saveCard)} color="secondary" />} />
                     </Grid>
