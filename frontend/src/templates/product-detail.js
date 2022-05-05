@@ -43,6 +43,7 @@ export default function ProductDetail({
     const [selectedVariant, setSelectedVariant] = useState(variants.findIndex(variant => findIndexVariantCriteria(variant))) // index of variant
     const [selectedImage, setSelectedImage] = useState(0) // To change the images
     const [stock, setStock] = useState(null)
+    const [edit, setEdit] = useState(false)
     
 
 
@@ -101,13 +102,14 @@ export default function ProductDetail({
                 setSelectedVariant={setSelectedVariant}
                 setSelectedImage={setSelectedImage}
                 stock={stock}
+                setEdit={setEdit}
                 />
                 
             </Grid>
             <Grid item container classes={{root: classes.recentlyViewed}} >
                 <Typography classes={{root: classes.recentlyViewedText}} variant="h3" align="center" gutterBottom>Recently Viewed products</Typography>
                 <RecentlyViewed products={JSON.parse(window.localStorage.getItem("recentlyViewed"))} />
-                <ProductReviews product={id} />
+                <ProductReviews product={id} edit={edit} setEdit={setEdit} />
             </Grid>
         </Grid>
     </Layout>

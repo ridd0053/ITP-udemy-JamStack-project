@@ -1,4 +1,4 @@
-import React, { useState, useEffect }  from "react"
+import React, { useState, useEffect, useContext }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import clsx from "clsx"
@@ -14,6 +14,8 @@ import Sizes from "../products-list/Sizes"
 import Swatches from "../products-list/Swatches"
 import QtyButton from "../products-list/QtyButton"
 import { colorIndex } from "../products-list/ProductFrameGrid"
+import { UserContext, FeedbackContext } from "../../contexts"
+import { setSnackbar } from "../../contexts/actions"
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -124,9 +126,8 @@ export const getStockDisplay = (stock, variant) => {
     }
 }
 
-export default function ProductInfo({ name, description, variants, selectedVariant, setSelectedVariant , stock, setSelectedImage }) {
+export default function ProductInfo({ name, description, variants, selectedVariant, setSelectedVariant , stock, setSelectedImage, setEdit }) {
     const classes = useStyles()
-
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
     
@@ -138,7 +139,6 @@ export default function ProductInfo({ name, description, variants, selectedVaria
     const sizes = []
     const colors = []
 
-
     variants.map(variant => {
         sizes.push(variant.size)
         if(!colors.includes(variant.color) 
@@ -147,6 +147,9 @@ export default function ProductInfo({ name, description, variants, selectedVaria
             colors.push(variant.color)
         }
     })
+
+    const { user } = useContext(UserContext)
+    const { dispatchFeedback } = useContext(FeedbackContext)
 
     useEffect(() => {
         if (imageIndex !== -1) {
@@ -167,6 +170,17 @@ export default function ProductInfo({ name, description, variants, selectedVaria
     }, [selectedColor])
 
     const stockDisplay = getStockDisplay(stock, selectedVariant)
+
+    const handleEdit = () => {
+        if (user.username === "Guest") {
+            dispatchFeedback(setSnackbar({status: "error", message: "You must be logged in to leave a review"}))
+            return
+        } else {
+            setEdit(true)
+            const reviewsRef = document.getElementById("reviews")
+            reviewsRef.scrollIntoView({behavior: "smooth"})
+        }
+    }
 
     return  (
         <Grid item container justifyContent="center" alignItems="flex-end" direction="columns" lg={6}>
@@ -196,7 +210,7 @@ export default function ProductInfo({ name, description, variants, selectedVaria
                                 <Rating number={2.5} />
                             </Grid>
                             <Grid item>
-                                <Button>
+                                <Button onClick={handleEdit}>
                                     <Typography variant="body2" classes={{root: classes.reviewButton}}>
                                         Leave a review {'>'}
                                     </Typography>
