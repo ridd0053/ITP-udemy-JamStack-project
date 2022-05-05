@@ -6,14 +6,14 @@ import halfStar from "../../images/half-star.svg"
 import emptyStar from "../../images/empty-star.svg"
 
 const useStyles = makeStyles(theme => ({
-    size: {
-        height: '2rem',
-        width: '2rem'
+    size:  {
+        height: ({ size }) =>  `${size || 2}rem`,
+        width: ({ size }) =>  `${size || 2}rem`,
     }
 }))
 
-export default function Rating({ number }) {
-    const classes = useStyles();
+export default function Rating({ number, size }) {
+    const classes = useStyles({ size });
     const diff = 5 - Math.ceil(number)
     return (
         <>

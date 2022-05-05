@@ -9,6 +9,7 @@ import Layout from "../components/ui/layout";
 import ProductImages from "../components/product-detail/ProductImages";
 import ProductInfo from "../components/product-detail/ProductInfo";
 import RecentlyViewed from "../components/product-detail/RecentlyViewed";
+import ProductReviews from "../components/product-detail/ProductReviews";
 import { GET_DETAILS } from "../Apollo/Queries";
 
 import { makeStyles } from "@material-ui/core/styles"
@@ -106,6 +107,7 @@ export default function ProductDetail({
             <Grid item container classes={{root: classes.recentlyViewed}} >
                 <Typography classes={{root: classes.recentlyViewedText}} variant="h3" align="center" gutterBottom>Recently Viewed products</Typography>
                 <RecentlyViewed products={JSON.parse(window.localStorage.getItem("recentlyViewed"))} />
+                <ProductReviews />
             </Grid>
         </Grid>
     </Layout>

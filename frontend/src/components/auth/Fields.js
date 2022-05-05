@@ -34,7 +34,8 @@ export default function Fields({ fields,
     disabled,
     fullWidth,
     settings,
-    xs
+    xs,
+    noError
 }) {
     const classes = useStyles({ isWhite, fullWidth, settings, xs })
 
@@ -47,9 +48,10 @@ export default function Fields({ fields,
                 <Grid item key={field}>
                     <TextField 
                     value={values[field]} 
-                    onChange={e => {
+                    onChange={
+                        e => {
                         const valid = validateHelper(e)
-                        if (errors[field] || valid[field] === true) {
+                        if (!noError && (errors[field] || valid[field] === true)) {
                             setErrors({...errors, [field]: !valid[field]})
                         }
                         setValues({ ...values, [field]: e.target.value })
@@ -58,11 +60,11 @@ export default function Fields({ fields,
                     placeholder={fields[field].placeholder}
                     type={fields[field].type}
                 InputProps={{
-                    startAdornment: (
+                    startAdornment: fields[field].startAdornment ? (
                         <InputAdornment position="start">
                             {fields[field].startAdornment}
                         </InputAdornment>
-                    ),
+                    ) : undefined,
                     endAdornment: fields[field].endAdornment ? (
                         <InputAdornment position="end">
                             {fields[field].endAdornment}
@@ -70,12 +72,14 @@ export default function Fields({ fields,
                     ) : undefined , 
                     classes: {input: classes.input}
                     }}
-                    onBlur={e => {
+                    onBlur={
+                        e => {
+                        if(noError) return
                         const valid = validateHelper(e)
                         setErrors({...errors, [field]: !valid[field]})
                     }}
-                    error={errors[field]}
-                    helperText={errors[field] && fields[field].helperText}
+                    error={noError ? false : errors[field]}
+                    helperText={noError ? "" : errors[field] && fields[field].helperText}
                     disabled={disabled}
                     fullWidth={fullWidth}
                 />
