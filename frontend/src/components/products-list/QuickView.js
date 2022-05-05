@@ -102,7 +102,8 @@ export default function QuickView({ open,
     selectedSize, 
     selectedColor, 
     setSelectedSize, 
-    setSelectedColor }) {
+    setSelectedColor,
+    rating }) {
     const classes = useStyles()
 
     const selectedVariant = imageIndex  === -1 ? product.node.variants.indexOf(variant) : imageIndex;
@@ -130,7 +131,7 @@ export default function QuickView({ open,
                             to={productDetailLink} >
                                 <Grid item>
                                     <Typography variant="h4">{name}</Typography>
-                                    <Rating number={4} />
+                                    <Rating number={rating} />
                                 </Grid>
                                 <Grid item>
                                     <Typography variant="h3" classes={{root: classes.stock}}>

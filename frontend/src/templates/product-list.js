@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import Fab from "@material-ui/core/Fab"
 import Pagination from "@material-ui/lab/Pagination"
+import PaginationItem from "@material-ui/lab/PaginationItem"
 import Grid from "@material-ui/core/Grid"
 import { graphql } from "gatsby"
 
@@ -10,7 +11,8 @@ import ListOfProducts from "../components/products-list/ListOfProducts";
 import { alphabetic, time, price } from "../components/products-list/SortFunctions"
 
 
-import { makeStyles } from "@material-ui/core/styles"
+import { makeStyles, styled } from "@material-ui/core/styles"
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -33,17 +35,22 @@ const useStyles = makeStyles(theme => ({
       marginTop: '1rem',
   },
   },
-  "@global": {
-    ".MuiPaginationItem-root": {
-      fontFamily: "Montserrat",
-      fontSize: "2rem",
-      color: theme.palette.primary.main,
-      "&.Mui-selected": {
-        color: "#fff",
-      },
-    },
-  },
 }))
+
+export const StyledPagination = props => {
+   const StylePaginationItem = styled(PaginationItem)(({ theme }) => ({
+    fontFamily: "Montserrat",
+    fontSize: "2rem",
+    color: theme.palette.primary.main,
+    "&.Mui-selected": {
+      color: "#fff",
+    },
+  }))
+
+  return <Pagination {...props} renderItem={item => <StylePaginationItem {...item}  />} />
+}
+
+
 
 export default function ProductList({
   pageContext: { filterOptions: options, name, description },
@@ -163,7 +170,7 @@ export default function ProductList({
           content={content}
           filterOptions={filterOptions}
         />
-        <Pagination
+        <StyledPagination
           count={numPages}
           page={page}
           onChange={(e, newPage) => setPage(newPage)}

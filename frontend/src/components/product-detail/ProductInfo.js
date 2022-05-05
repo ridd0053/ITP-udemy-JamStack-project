@@ -126,7 +126,15 @@ export const getStockDisplay = (stock, variant) => {
     }
 }
 
-export default function ProductInfo({ name, description, variants, selectedVariant, setSelectedVariant , stock, setSelectedImage, setEdit }) {
+export default function ProductInfo({ name, 
+    description, 
+    variants, 
+    selectedVariant, 
+    setSelectedVariant, 
+    stock, 
+    setSelectedImage, 
+    setEdit,
+    rating }) {
     const classes = useStyles()
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
@@ -207,7 +215,7 @@ export default function ProductInfo({ name, description, variants, selectedVaria
                                 </Typography>
                             </Grid>
                             <Grid item>
-                                <Rating number={2.5} />
+                                <Rating number={rating} />
                             </Grid>
                             <Grid item>
                                 <Button onClick={handleEdit}>

@@ -89,7 +89,8 @@ export default function ProductFrameGrid({
     selectedSize, 
     selectedColor, 
     setSelectedSize, 
-    setSelectedColor }) {
+    setSelectedColor,
+    rating }) {
     const classes = useStyles({ small })
 
     // To open up the quickview for website
@@ -139,6 +140,7 @@ export default function ProductFrameGrid({
             hasStyles={hasStyles}
             stock={stock}
             imageIndex={imageIndex}
+            rating={rating}
             />
         </Grid>
     

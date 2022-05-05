@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
         marginTop: "-0.5rem",
     },
     buttonContainer: {
-        marginTop: "2rem",
+        marginTop: "1rem",
     },
     reviewButtonText: {
         color: "#fff",
@@ -40,6 +40,13 @@ const useStyles = makeStyles(theme => ({
     },
     rating: {
         cursor: "pointer",
+    },
+    delete: {
+        backgroundColor: theme.palette.error.main,
+        marginLeft: "0.5rem",
+        "&:hover": {
+            backgroundColor: theme.palette.error.dark,
+        }
     },
     "@global": {
         ".MuiInput-underline:before, .MuiInput-underline:hover:not(.Mui-disabled):before": {
@@ -72,38 +79,41 @@ export default function ProductReview({ reviews, product, review, setEdit, user,
         }
     }
 
-    const handleReview = () => {
-        setLoading("leave-review")
+    const handleReview = option => {
+        setLoading(option === "delete" ? "delete-review" : "leave-review")
 
-        const axiosFunction = found ? axios.put : axios.post
-        const route = found ? `/reviews/${found.id}` : "/reviews"
+        const axiosFunction = option === "delete" ? axios.delete : found ? axios.put : axios.post
+        const route = found || option === "delete" ? `/reviews/${found.id}` : "/reviews"
+        const auth = { Authorization: `Bearer ${user.jwt}`}
 
         axiosFunction(process.env.GATSBY_STRAPI_URL + route, 
         {
             text: values.message,
             product,
-            rating
+            rating,
+            headers: option === "delete" ? auth : undefined
         }, 
         {
-            headers: {
-                Authorization: `Bearer ${user.jwt}`
-            }
+            headers: auth
         }).then(response => {
             setLoading(null)
-            dispatchFeedback(setSnackbar({status: "success", message: "Product Reviewed Successfully"}))
-            if ( found ) {
-                const newReviews = [...reviews]
-                const reviewIndex = newReviews.indexOf(found)
+            dispatchFeedback(setSnackbar({status: "success", message: `${option === "delete" ? "Review deleted" : "Product Reviewed"} Successfully`}))
+            let newReviews = [...reviews]
+            const reviewIndex = newReviews.indexOf(found)
 
+            if (option === "delete") {
+                newReviews = newReviews.filter(review => review !== found)
+            } else if (found) {
                 newReviews[reviewIndex] = response.data
-
-                setReviews(newReviews)
-                setEdit(false)
+            } else {
+                newReviews = [response.data, ...newReviews]
             }
+            setReviews(newReviews)
+            setEdit(false)
         }).catch(error => {
             setLoading(null)
             console.error(error)
-            dispatchFeedback(setSnackbar({status: "error", message: "There was a problem leaving your review. Please try again."}))
+            dispatchFeedback(setSnackbar({status: "error", message: `There was a problem ${option === "delete" ? "deleting" : "leaving"} your review. Please try again.`}))
         })
     }
 
@@ -167,6 +177,16 @@ export default function ProductReview({ reviews, product, review, setEdit, user,
                         </span>
                     </Button>)}
                 </Grid>
+                {found ? (
+                    <Grid item>
+                        {loading === "delete-review" ? <CircularProgress /> : (
+                        <Button onClick={() => handleReview("delete")} variant="contained" classes={{root: classes.delete}}>
+                            <span className={classes.reviewButtonText}>
+                                Delete
+                            </span>
+                        </Button>)}
+                    </Grid>
+                ) : null}
                 <Grid item>
                     <Button onClick={() => setEdit(false)}>
                         <span className={classes.cancelButtonText}>
