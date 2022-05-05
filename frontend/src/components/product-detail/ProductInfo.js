@@ -6,13 +6,13 @@ import Button from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
 import useMediaQuery  from "@material-ui/core/useMediaQuery"
 
-import factorite from '../../images/favorite.svg'
 import subscription from '../../images/subscription.svg'
 
 import Rating from "../home/Rating"
 import Sizes from "../products-list/Sizes"
 import Swatches from "../products-list/Swatches"
 import QtyButton from "../products-list/QtyButton"
+import Favorite from "../ui/favorite"
 import { colorIndex } from "../products-list/ProductFrameGrid"
 import { UserContext, FeedbackContext } from "../../contexts"
 import { setSnackbar } from "../../contexts/actions"
@@ -51,6 +51,8 @@ const useStyles = makeStyles(theme => ({
     icon: {
         height: '4rem',
         width: '4rem',
+    },
+    iconWrapper: {
         margin: "0.5rem 1rem"
     },
     sectionContainer: {
@@ -119,10 +121,9 @@ export const getStockDisplay = (stock, variant) => {
         default:
             if(stock[variant].qty === 0) {
                 return "Out of stock"
-            }else {
+            } else {
                 return `${stock[variant].qty} currently in stock`
             }
-
     }
 }
 
@@ -134,7 +135,8 @@ export default function ProductInfo({ name,
     stock, 
     setSelectedImage, 
     setEdit,
-    rating }) {
+    rating,
+    product }) {
     const classes = useStyles()
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
 
@@ -189,14 +191,14 @@ export default function ProductInfo({ name,
             reviewsRef.scrollIntoView({behavior: "smooth"})
         }
     }
-
+   
     return  (
         <Grid item container justifyContent="center" alignItems="flex-end" direction="columns" lg={6}>
             <Grid item container justifyContent="flex-end" classes={{root: classes.background}}>
-                <Grid item>
-                    <img src={factorite} alt="add item to favorite" className={classes.icon} />
+                <Grid item classes={{root: classes.iconWrapper}}>
+                    <Favorite size={4} variant={variants[selectedVariant].id} />
                 </Grid>
-                <Grid item>
+                <Grid item classes={{root: classes.iconWrapper}}>
                     <img src={subscription} alt="subsribe to item" className={classes.icon} />
                 </Grid>
             </Grid>

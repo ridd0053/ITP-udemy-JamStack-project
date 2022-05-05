@@ -128,7 +128,6 @@ export default function ProductList({
       filteredProducts = filteredProducts.filter( item => {
           let valid
           filters[filter].some(value => {
-              console.log({item: item.variant[filter.toLocaleLowerCase()], value: value.label})
               if(filter === "Color") {
                   if (item.variant.ColorLabel === value.label ) {
                       valid = item
