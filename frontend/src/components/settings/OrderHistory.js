@@ -130,7 +130,6 @@ export default function OrderHistory({ setSelectedSetting }) {
     ]
 
     const rows = createData(orders)
-    console.log("rows", rows)
 
     return  (
         <Grid item container classes={{root: classes.item}}>

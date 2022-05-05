@@ -196,7 +196,7 @@ export default function ProductInfo({ name,
         <Grid item container justifyContent="center" alignItems="flex-end" direction="columns" lg={6}>
             <Grid item container justifyContent="flex-end" classes={{root: classes.background}}>
                 <Grid item classes={{root: classes.iconWrapper}}>
-                    <Favorite size={4} variant={variants[selectedVariant].id} />
+                    <Favorite size={4} variant={variants[selectedVariant].id} noPadding />
                 </Grid>
                 <Grid item classes={{root: classes.iconWrapper}}>
                     <img src={subscription} alt="subsribe to item" className={classes.icon} />

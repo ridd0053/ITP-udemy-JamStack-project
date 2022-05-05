@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography"
 import Chip  from "@material-ui/core/Chip"
 import Button from "@material-ui/core/Button"
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer"
+import Hidden from "@material-ui/core/Hidden"
 
 import OrderDetailItem from "./OrderDetailItem"
 
@@ -86,8 +87,15 @@ export default function OderDetails({ orders, open, setOpen }) {
         disableBackdropTransition={!iOS}
         disableDiscovery={iOS}
       >
-        {matchesXS && <Grid item classes={{root: classes.spacer}} component={Button} disableRipple onClick={() => setOpen(null)}>
-        </Grid>}
+        <Hidden smUp >
+          <Grid 
+            item 
+            classes={{root: classes.spacer}} 
+            component={Button} 
+            disableRipple 
+            onClick={() => setOpen(null)}>
+          </Grid>
+        </Hidden>
         <Grid container direction="column" classes={{root: classes.light}}>
           <Grid item classes={{root: classes.dark}}>
             <Typography
