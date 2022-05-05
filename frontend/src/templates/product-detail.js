@@ -107,7 +107,7 @@ export default function ProductDetail({
             <Grid item container classes={{root: classes.recentlyViewed}} >
                 <Typography classes={{root: classes.recentlyViewedText}} variant="h3" align="center" gutterBottom>Recently Viewed products</Typography>
                 <RecentlyViewed products={JSON.parse(window.localStorage.getItem("recentlyViewed"))} />
-                <ProductReviews />
+                <ProductReviews product={id} />
             </Grid>
         </Grid>
     </Layout>
