@@ -25,18 +25,18 @@ const useStyles = makeStyles(theme => ({
         height: '1.525rem',
         borderRadius: 0,
         backgroundColor: ({ isCart }) => isCart ? '#fff' : theme.palette.secondary.main,
-        borderLeft: ({ isCart }) =>  `2px solid ${ isCart ? theme.palette.secondary.main : "#fff"}`,
-        borderRight: '2px solid #fff',
+        borderLeft: ({ isCart }) =>  `2px solid ${ isCart ? theme.palette.secondary.main : "#fff"} !important`,
+        borderRight: '2px solid #fff !important',
         borderBottom: "none",
         borderTop: "none",
     },
     endButtons: {
         borderRadius: 50,
         backgroundColor: ({ isCart }) => isCart ? '#fff' : theme.palette.secondary.main,
-        border: "none",
+        border: "none !important",
     },
     minusButton: {
-        borderTop: ({ isCart }) =>  `2px solid ${ isCart ? theme.palette.secondary.main : "#fff"}`,
+        borderTop: ({ isCart }) =>  `2px solid ${ isCart ? theme.palette.secondary.main : "#fff"} !important`,
     },
     minus: {
         marginTop: "-0.25rem"
@@ -58,9 +58,9 @@ const useStyles = makeStyles(theme => ({
         padding: 0,
     },
     disabledButton: {
-        backgroundColor: ({ isCart }) =>  "#9e9e9e",
+        backgroundColor: ({ isCart }) =>  theme.palette.grey[500],
         "&:hover": {
-            backgroundColor: "#9e9e9e",
+            backgroundColor: theme.palette.grey[500],
         }
     },
     disabledText: {
@@ -88,10 +88,10 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
     
 
     const handleChange = direction => {
-        if (qty === stock[selectedVariant].qty && direction === "up") {
+        if ((qty === stock[selectedVariant].qty || stock[selectedVariant].qty === 0) && direction === "up") {
             return null
         }
-        if (qty === 1 && direction === "down") {
+        if ((qty === 1 || stock[selectedVariant].qty === 0) && direction === "down") {
             return null
         }
         const newQty = direction === "up" ? qty + 1 : qty - 1 
@@ -122,10 +122,15 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
     }
 
     useEffect(() => {
-        if(qty === 1 || stock === null || stock === -1) {
+        if(!stock) return
+        if (stock[selectedVariant].qty === 0 ) {
+            setDisableDownButton(true)
+            setDisableUpButton(true)
+        }
+        else if(qty === 1 ) {
             setDisableDownButton(true)
         }
-        else if(qty === stock[selectedVariant].qty || stock === null || stock === -1) {
+        else if(qty === stock[selectedVariant].qty) {
             setDisableUpButton(true)
         }
         else {
@@ -137,6 +142,9 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
     useEffect(() => {
     if(stock === null || stock === -1) {
         return undefined
+    }
+    else if (qty === 0 && stock[selectedVariant].qty !== 0) {
+        setQty(1)
     }
     else if(qty > stock[selectedVariant].qty) {
         setQty(stock[selectedVariant].qty)
@@ -160,6 +168,7 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
                 </Button>
                 <ButtonGroup orientation="vertical">
                     <Button
+                    disabled={disableUpButton}
                     onClick={() => handleChange("up")}
                     classes={{root: clsx(classes.editButtons , {
                         [classes.disabledButton]: disableUpButton
@@ -171,6 +180,7 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
                         </Typography>
                     </Button>
                     <Button
+                    disabled={disableDownButton}
                     onClick={() => handleChange("down")}
                     classes={{root: clsx(classes.editButtons, classes.minusButton, {
                         [classes.disabledButton]: disableDownButton
@@ -183,7 +193,7 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
                     </Button>
                 </ButtonGroup>
                 {isCart ? null 
-                : (<Button onClick={handleCart} classes={{root: clsx(classes.endButtons, classes.cartButton, {
+                : (<Button disabled={stock ? stock[selectedVariant].qty === 0 : true} onClick={handleCart} classes={{root: clsx(classes.endButtons, classes.cartButton, {
                     [classes.success]: success
                 })}}>
                     {success ? 

@@ -4,16 +4,21 @@ import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Chip  from "@material-ui/core/Chip"
 import IconButton from "@material-ui/core/IconButton"
-import { DataGrid } from "@material-ui/data-grid"
+import CircularProgress from "@material-ui/core/CircularProgress"
+
 
 import { UserContext, FeedbackContext } from "../../contexts"
-import { setSnackbar } from "../../contexts/actions"
+import { setSnackbar, setUser } from "../../contexts/actions"
+
 import Sizes from "../products-list/Sizes"
 import Swatches from "../products-list/Swatches"
 import QtyButton from "../products-list/QtyButton"
+import SettingsGrid from "./SettingsGrid"
+
 import Delete from "../../images/Delete"
 
 import { makeStyles } from "@material-ui/core/styles"
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -39,21 +44,79 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Favorites() {
+export default function Favorites({ setSelectedSetting }) {
     const classes = useStyles()
-    const { user  } = useContext(UserContext)
+    const { user, dispatchUser } = useContext(UserContext)
     const [products, setProducts] = useState([])
+    const [selectedVariants, setSelectedVariants] = useState({})
+    const [selectedSizes, setSelectedSizes] = useState({})
+    const [selectedColors, setSelectedColors] = useState({})
+    const [loading, setLoading] = useState(null)
     const { dispatchFeedback } = useContext(FeedbackContext)
 
+    const setSelectedHelper = (selectedFunction, values, value, row) => {
+        selectedFunction({...values, [row]: value})
+
+        const { variants } = products.find(favorite => favorite.id === row)
+        const selectedVariant = selectedVariants[row]
+
+        let newVariant
+
+        // Check if color will be changed
+        if (value.includes("#")) {
+            newVariant = variants.find(variant => 
+                variant.size === selectedSizes[row] && 
+                variant.style === variants[selectedVariant].style && 
+                variant.color === value
+                )
+        } 
+        else {
+            let newColors = []
+            variants.map(variant => {
+                if (!newColors.includes(variant.color) && 
+                variant.size === value && 
+                variants[selectedVariant].style === variant.style) {
+                    newColors.push(variant.color)
+                }
+            })
+            newVariant = variants.find(variant => variant.size === value 
+                && variant.style === variants[selectedVariant].style &&
+                variant.color === newColors[0])
+        }
+
+        setSelectedVariants({...selectedVariants, [row]: variants.indexOf(newVariant)})
+
+    }
+
     const createData = data => 
-        data.map(item => ({
-            item: { name: item.variants[0].product.name.split("-")[0], image: item.variant.images[0].url },
-            variant: { all: item.variants, current: item.variant },
-            quantity: item.variants,
-            price: item.variant.price,
-            id: item.id,
-        }))
+        data.map(item => {
+            const selectedVariant = selectedVariants[item.id]
+            return {
+                item: { name: item.variants[selectedVariant].product.name.split("-")[0], image: item.variants[selectedVariant].images[0].url },
+                variant: { all: item.variants, current: item.variant },
+                quantity: item.variants,
+                price: item.variants[selectedVariant].price,
+                id: item.id,
+            }
+        })
     
+    const handleDelete = row => {
+        setLoading(row)
+        axios.delete(process.env.GATSBY_STRAPI_URL + `/favorites/${row}`, 
+        {headers: {Authorization: `Bearer ${user.jwt}`}}
+        ).then(response => {
+            setLoading(null)
+            const newProducts = products.filter(product => product.id !== row)
+            const newFavorites = user.favorites.filter(favorite => favorite.id !== row)
+            setProducts(newProducts)
+            dispatchUser(setUser({...user, favorites: newFavorites}))
+            dispatchFeedback(setSnackbar({status: "success", message:"Product removed from favorites"}))
+        }).catch(error => {
+            setLoading(null)
+            console.error(error)
+            dispatchFeedback(setSnackbar({status: "error", message:"There was problem removing this product from your favorites. Please try again."}))
+        })
+    }
 
     const columns = [
         {field: "item", headerName: "Item", width: 250, renderCell: ({value}) => (
@@ -68,27 +131,57 @@ export default function Favorites() {
                 </Grid>
             </Grid>
         )},
-        {field: "variant", headerName: "Variant", width: 275, sortable: false, renderCell: ({value}) => (
+        {field: "variant", headerName: "Variant", width: 275, sortable: false, renderCell: ({value, row}) => {
+            let sizes = []
+            let colors = []
+                 value.all.map(variant => {
+                sizes.push(variant.size)
+                if (!colors.includes(variant.color) && variant.size === selectedSizes[row.id] && variant.style === value.current.style) {
+                    colors.push(variant.color)
+                }
+            })
+            
+            return (
             <Grid container direction="column">
-                {value.current.id}
+                <Sizes
+                sizes={sizes} 
+                setSelectedSize={(size) => setSelectedHelper(setSelectedSizes, selectedSizes, size, row.id)} 
+                selectedSize={selectedSizes[row.id]}
+                />
+                <Swatches
+                colors={colors}
+                setSelectedColor={(color) => setSelectedHelper(setSelectedColors, selectedColors, color, row.id)}
+                selectedColor={selectedColors[row.id]}
+                />
             </Grid>
-        )},
-        {field: "quantity", headerName: "Quantity", width: 250, sortable: false, renderCell: ({value}) => (
-            <div>{value.id}</div>
-        )},
+        )
+    }},
+        {field: "quantity", headerName: "Quantity", width: 250, sortable: false, renderCell: ({value, row}) => {
+            const selectedVariant = selectedVariants[row.id]
+            const stock = value.map(variant => ({ qty: variant.qty }))
+            return (
+            <QtyButton 
+            stock={stock} 
+            variants={value} 
+            selectedVariant={selectedVariant} 
+            name={value[selectedVariant].product.name.split("-")[0]} />
+            )
+        }},
         {field: "price", headerName:"Price", width: 250, renderCell: ({value}) => (
             <Chip classes={{root: classes.chipRoot}} label={`€ ${value}`} />
         )},
-        {field: "", width: 500, sortable: false, renderCell: ({value}) => (
-            <IconButton>
+        {field: "", width: 450, sortable: false, disableColumnMenu: true, renderCell: ({value, row}) => (
+            <IconButton onClick={() => handleDelete(row.id)} disabled={!!loading}>
+                {loading === row.id ? <CircularProgress size="2rem" color="secondary" /> : (
                 <span className={classes.deleteWrapper}>
                     <Delete  />
-                </span>
+                </span>)}
             </IconButton>
         )},
     ]
 
-    const rows = createData(products)
+    const rows = Object.keys(selectedVariants).length > 0 ? createData(products) : []
+
     useEffect(() => {
         axios
           .get(process.env.GATSBY_STRAPI_URL + "/favorites/userFavorites", {
@@ -96,6 +189,22 @@ export default function Favorites() {
           })
           .then(response => {
             setProducts(response.data)
+            let newVariants = {}
+            let newSizes = {}
+            let newColors = {}
+            
+            response.data.forEach(favorite => {
+                const found = favorite.variants.find(variant => variant.id === favorite.variant.id)
+                const index = favorite.variants.indexOf(found)
+
+                newVariants = {...newVariants, [favorite.id]: index}
+                newSizes = {...newSizes, [favorite.id]: favorite.variant.size}
+                newColors = {...newColors, [favorite.id]: favorite.variant.color}
+            })
+            setSelectedVariants(newVariants)
+            setSelectedSizes(newSizes)
+            setSelectedColors(newColors)
+   
           })
           .catch(error => {
             console.error(error)
@@ -103,11 +212,10 @@ export default function Favorites() {
           })
       }, [])
 
-    console.log(rows)
 
     return  (
         <Grid item container classes={{root: classes.container}}>
-            <DataGrid hideFooterSelectedRowCount columns={columns} rows={rows} pageSize={5} />
+            <SettingsGrid setSelectedSetting={setSelectedSetting} rows={rows} columns={columns} rowsPerPage={3} />
         </Grid>
     )
 }
