@@ -16,7 +16,7 @@ import Cart from "../../images/Cart"
 
 const useStyles = makeStyles(theme => ({
     qtyText: {
-        color: ({ isCart }) =>  isCart ? theme.palette.secondary.main : '#fff',
+        color: ({ white }) =>  white ? theme.palette.secondary.main : '#fff',
     },
     mainGroup: {
         height: '3rem',
@@ -24,19 +24,23 @@ const useStyles = makeStyles(theme => ({
     editButtons: {
         height: '1.525rem',
         borderRadius: 0,
-        backgroundColor: ({ isCart }) => isCart ? '#fff' : theme.palette.secondary.main,
-        borderLeft: ({ isCart }) =>  `2px solid ${ isCart ? theme.palette.secondary.main : "#fff"} !important`,
-        borderRight: '2px solid #fff !important',
+        backgroundColor: ({ white }) => white ? '#fff' : theme.palette.secondary.main,
+        borderLeft: ({ white }) =>  `2px solid ${ white ? theme.palette.secondary.main : "#fff"} !important`,
+        borderRight: ({ round }) => round ? 0 : '2px solid #fff !important',
         borderBottom: "none",
         borderTop: "none",
+        borderRadius: ({ round }) => round ? '0px 50px 50px 0px' : 0,    
+        "&:hover": {
+            backgroundColor: ({ white }) => white ? '#fff' : theme.palette.secondary.main,    
+        }
     },
     endButtons: {
         borderRadius: 50,
-        backgroundColor: ({ isCart }) => isCart ? '#fff' : theme.palette.secondary.main,
+        backgroundColor: ({ white }) => white ? '#fff' : theme.palette.secondary.main,
         border: "none !important",
     },
     minusButton: {
-        borderTop: ({ isCart }) =>  `2px solid ${ isCart ? theme.palette.secondary.main : "#fff"} !important`,
+        borderTop: ({ white }) =>  `2px solid ${ white ? theme.palette.secondary.main : "#fff"} !important`,
     },
     minus: {
         marginTop: "-0.25rem"
@@ -47,7 +51,7 @@ const useStyles = makeStyles(theme => ({
     },
     qtyButton: {
         "&:hover": {
-            backgroundColor: ({ isCart }) => isCart ? '#fff' : theme.palette.secondary.main,
+            backgroundColor: ({ white }) => white ? '#fff' : theme.palette.secondary.main,
             
         }
     },
@@ -58,13 +62,13 @@ const useStyles = makeStyles(theme => ({
         padding: 0,
     },
     disabledButton: {
-        backgroundColor: ({ isCart }) =>  theme.palette.grey[500],
+        backgroundColor: ({ white }) =>  theme.palette.grey[500],   
         "&:hover": {
             backgroundColor: theme.palette.grey[500],
         }
     },
     disabledText: {
-        color: ({ isCart }) => isCart ? "#fff" : undefined,
+        color: ({ white }) => white ? "#fff" : undefined,
     },
     success: {
         backgroundColor: theme.palette.success.main,
@@ -75,16 +79,34 @@ const useStyles = makeStyles(theme => ({
 }))
 
 
-export default function QtyButton({stock, variants, selectedVariant, name, isCart }) {
+export default function QtyButton({stock, 
+    variants, 
+    selectedVariant, 
+    name, 
+    isCart, 
+    white, 
+    hideCartButton, 
+    round,
+    override }) {
     
     const { cart, dispatchCart } = useContext(CartContext)
-    const existingItem = cart.find(item => item.variant === variants[selectedVariant])
+    const existingItem = isCart ? cart.find(item => item.variant === variants[selectedVariant]) : null
     const [disableDownButton, setDisableDownButton] = useState(false);
     const [disableUpButton, setDisableUpButton] = useState(false);
     
-    const classes = useStyles({ isCart, disableDownButton, disableUpButton  })
-    const [qty, setQty] = useState(isCart ?  existingItem.qty : 1);
+    const classes = useStyles({ white, round, disableDownButton, disableUpButton  })
+    const [qty, setQtyState] = useState(isCart ?  existingItem.qty : 1);
     const [success, setSuccess] = useState(false)
+
+    let setQty
+    if ( override ) {
+        setQty = val => {
+            override.setValue(val)
+            setQtyState(val)
+        }
+    } else {
+        setQty = setQtyState
+    }
     
 
     const handleChange = direction => {
@@ -192,7 +214,7 @@ export default function QtyButton({stock, variants, selectedVariant, name, isCar
                         </Typography>
                     </Button>
                 </ButtonGroup>
-                {isCart ? null 
+                {hideCartButton ? null 
                 : (<Button disabled={stock ? stock[selectedVariant].qty === 0 : true} onClick={handleCart} classes={{root: clsx(classes.endButtons, classes.cartButton, {
                     [classes.success]: success
                 })}}>

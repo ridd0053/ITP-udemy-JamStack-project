@@ -6,13 +6,14 @@ import Button from "@material-ui/core/Button"
 import Chip from "@material-ui/core/Chip"
 import useMediaQuery  from "@material-ui/core/useMediaQuery"
 
-import subscription from '../../images/subscription.svg'
+
 
 import Rating from "../home/Rating"
 import Sizes from "../products-list/Sizes"
 import Swatches from "../products-list/Swatches"
 import QtyButton from "../products-list/QtyButton"
 import Favorite from "../ui/favorite"
+import Subscription from "../ui/subsription"
 import { colorIndex } from "../products-list/ProductFrameGrid"
 import { UserContext, FeedbackContext } from "../../contexts"
 import { setSnackbar } from "../../contexts/actions"
@@ -199,7 +200,7 @@ export default function ProductInfo({ name,
                     <Favorite size={4} variant={variants[selectedVariant].id} noPadding />
                 </Grid>
                 <Grid item classes={{root: classes.iconWrapper}}>
-                    <img src={subscription} alt="subsribe to item" className={classes.icon} />
+                    <Subscription stock={stock} selectedVariant={selectedVariant} size={4} variant={variants[selectedVariant]} name={name.split(" ")[0]} />
                 </Grid>
             </Grid>
             <Grid item container direction="column" classes={{root: classes.center}}>

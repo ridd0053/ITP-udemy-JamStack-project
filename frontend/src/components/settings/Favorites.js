@@ -92,7 +92,7 @@ export default function Favorites({ setSelectedSetting }) {
         data.map(item => {
             const selectedVariant = selectedVariants[item.id]
             return {
-                item: { name: item.variants[selectedVariant].product.name.split("-")[0], image: item.variants[selectedVariant].images[0].url },
+                item: { name: item.variants[selectedVariant].product.name.split(" ")[0], image: item.variants[selectedVariant].images[0].url },
                 variant: { all: item.variants, current: item.variant },
                 quantity: item.variants,
                 price: item.variants[selectedVariant].price,
@@ -164,7 +164,7 @@ export default function Favorites({ setSelectedSetting }) {
             stock={stock} 
             variants={value} 
             selectedVariant={selectedVariant} 
-            name={value[selectedVariant].product.name.split("-")[0]} />
+            name={value[selectedVariant].product.name.split(" ")[0]} />
             )
         }},
         {field: "price", headerName:"Price", width: 250, renderCell: ({value}) => (

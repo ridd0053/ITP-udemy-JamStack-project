@@ -1,4 +1,5 @@
 import React, { useState, useContext }  from "react"
+import clsx from "clsx"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
 import Chip  from "@material-ui/core/Chip"
@@ -35,7 +36,6 @@ const useStyles = makeStyles(theme => ({
     actionWrapper: {
         height:"3rem",
         width:"3rem",
-        marginBottom: -8,
         [theme.breakpoints.down('xs')]: {
             height:"2rem",
             width:"2rem",
@@ -44,12 +44,12 @@ const useStyles = makeStyles(theme => ({
     infoContainer: {
         width:'35rem',
         position:"relative",
-        height: "8rem",
+        height: ({ subscription }) =>  subscription ? "10rem" : "8rem",
         marginLeft:'1rem',
     },
     chipWrapper: {
         position:"absolute",
-        top: "3.5rem",
+        top: ({ subscription }) =>  subscription ? "4.25rem" : "3.5rem",
         
     },
     itemContainer: {
@@ -65,11 +65,25 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down('xs')]: {
             padding:"12px 6px",
         },  
+    },
+    subscriptionChipRoot: {
+        marginLeft: "1rem",
+    },
+    subscriptionChipLabel: {
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '1.25rem',
+        },
+    },
+    actionContainer: {
+        marginBottom: "-0.5rem",
+    },
+    favoriteIcon: {
+        marginTop: 2,
     }
 }))
 
 export default function Item({ item }) {
-    const classes = useStyles();
+    const classes = useStyles({ subscription: item.subscription });
     const theme = useTheme();
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
     const { dispatchCart } = useContext(CartContext)
@@ -82,7 +96,7 @@ export default function Item({ item }) {
         {component: Favorite, props: {
             color: theme.palette.secondary.main,
             size: matchesXS ? 2 : 3,
-            buttonClass: classes.actionButton,
+            buttonClass: clsx(classes.actionButton, classes.favoriteIcon),
             variant: item.variant.id,
         }},
         {icon: SubscribeIcon, color: theme.palette.secondary.main},
@@ -107,11 +121,14 @@ export default function Item({ item }) {
                         selectedVariant={0} 
                         variants={[item.variant]} 
                         name={item.name}
-                        isCart />
+                        isCart
+                        white 
+                        hideCartButton />
                     </Grid>
                 </Grid>
                 <Grid item classes={{root: classes.chipWrapper}}>
                     <Chip label={`€${item.variant.price}`} />
+                    {item.subscription ? <Chip label={`Every ${item.subscription}`} classes={{root: classes.subscriptionChipRoot, label: classes.subscriptionChipLabel}} /> : null}
                 </Grid>
                 <Grid item container justifyContent="space-between" alignItems="flex-end" >
                     <Grid item xs={7} sm>
@@ -119,7 +136,7 @@ export default function Item({ item }) {
                             ID: {item.variant.id}
                         </Typography>
                     </Grid>
-                    <Grid item container justifyContent="flex-end" xs={5} sm>
+                    <Grid item container justifyContent="flex-end" xs={5} sm classes={{root: classes.actionContainer}}>
                         {actions.map((action, i) => (
                             <Grid item key={i}>
                                 {action.component ? 
