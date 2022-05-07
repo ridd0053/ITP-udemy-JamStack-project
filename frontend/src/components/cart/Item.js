@@ -7,13 +7,13 @@ import IconButton from "@material-ui/core/IconButton"
 import  useMediaQuery  from '@material-ui/core/useMediaQuery';
 
 import QtyButton from '../products-list/QtyButton'
+import Subscription from '../ui/subsription'
 import SelectFrequency from "../ui/select-frequency"
 
 import { CartContext } from "../../contexts"
 import { removeFromCart, changeFrequency } from "../../contexts/actions"
 
 import Favorite from "../ui/favorite"
-import SubscribeIcon from '../../images/Subscription'
 import DeleteIcon from '../../images/Delete'
 
 import { makeStyles, useTheme } from "@material-ui/core/styles"
@@ -90,7 +90,7 @@ export default function Item({ item }) {
     const classes = useStyles({ subscription: item.subscription });
     const theme = useTheme();
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
-    const [frequency, setFrequency ] = useState(item.subscription)
+    const [frequency, setFrequency ] = useState(item.subscription || "Month")
     const { dispatchCart } = useContext(CartContext)
 
     const handleDelete = () => {
@@ -109,7 +109,12 @@ export default function Item({ item }) {
             buttonClass: clsx(classes.actionButton, classes.favoriteIcon),
             variant: item.variant.id,
         }},
-        {icon: SubscribeIcon, color: theme.palette.secondary.main},
+        {component: Subscription,props: {
+            isCart: item,
+            size: matchesXS ? 2 : 3,
+            color: theme.palette.secondary.main,
+            cartFrequency: frequency,
+        }, color: theme.palette.secondary.main},
         {icon: DeleteIcon, color: theme.palette.error.main, size: matchesXS ? "1.5rem" :"2.5rem", onClick: handleDelete},
     ]
 

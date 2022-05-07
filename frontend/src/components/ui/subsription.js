@@ -12,7 +12,7 @@ import QtyButton from "../products-list/QtyButton"
 import SelectFrequency from "./select-frequency"
 
 import { CartContext, UserContext, FeedbackContext } from "../../contexts"
-import { setSnackbar, addToCart, setUser } from "../../contexts/actions"
+import { setSnackbar, addToCart, toggleSubscription } from "../../contexts/actions"
 
 import SubscriptionIcon from "../../images/Subscription"
 
@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: theme.palette.primary.main,
     },
     iconButton: {
-        padding: 0,
+        padding: ({ noPadding }) => noPadding ? 0 : undefined,
     },
     cartButton: {
         height: "8rem",
@@ -76,8 +76,16 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function Subscription({ size, stock, selectedVariant, variant, name  }) {
-    const classes = useStyles({ size })
+export default function Subscription({ size, 
+    stock, 
+    selectedVariant, 
+    variant, 
+    name, 
+    color, 
+    isCart,
+    cartFrequency,
+    noPadding  }) {
+    const classes = useStyles({ size, noPadding })
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
     const [open, setOpen] = useState(false)
     const [frequency, setFrequency] = useState("Month")
@@ -88,6 +96,10 @@ export default function Subscription({ size, stock, selectedVariant, variant, na
 
 
     const handleOpen = () => {
+        if (isCart) {
+            dispatchCart(toggleSubscription(isCart.variant, cartFrequency))
+            return
+          }
         if (user.username === "Guest") {
             dispatchFeedback(setSnackbar({status:"error", message:"You must be logged in to create a subscription"}))
             return
@@ -106,7 +118,7 @@ export default function Subscription({ size, stock, selectedVariant, variant, na
         <>
             <IconButton onClick={handleOpen} classes={{root: classes.iconButton}}>
                 <span className={classes.iconWrapper}>
-                    <SubscriptionIcon />
+                    <SubscriptionIcon color={color} />
                 </span>
             </IconButton>
             <Dialog fullWidth fullScreen={matchesXS} maxWidth="md" open={open} onClose={() => setOpen(false)} classes={{paper: classes.dialog}}>

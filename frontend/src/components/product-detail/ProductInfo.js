@@ -200,7 +200,13 @@ export default function ProductInfo({ name,
                     <Favorite size={4} variant={variants[selectedVariant].id} noPadding />
                 </Grid>
                 <Grid item classes={{root: classes.iconWrapper}}>
-                    <Subscription stock={stock} selectedVariant={selectedVariant} size={4} variant={variants[selectedVariant]} name={name.split(" ")[0]} />
+                    <Subscription 
+                    stock={stock} 
+                    selectedVariant={selectedVariant} 
+                    size={4} 
+                    noPadding 
+                    variant={variants[selectedVariant]} 
+                    name={name.split(" ")[0]} />
                 </Grid>
             </Grid>
             <Grid item container direction="column" classes={{root: classes.center}}>
