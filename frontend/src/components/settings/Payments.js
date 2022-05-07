@@ -100,14 +100,16 @@ const useStyles = makeStyles(theme => ({
 export default function Payments({ 
     user, 
     slot, 
-    setSlot, 
-    checkout, 
+    setSlot,
     saveCard, 
     setSaveCard, 
     setCardError,
     selectedStep,
     setCard,
     stepNumber,
+    hasSubScriptionCart,
+    hasSubscriptionActive,
+    checkout
     }) {
     const classes = useStyles({ checkout, selectedStep, stepNumber })
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down("xs"))
@@ -120,6 +122,20 @@ export default function Payments({
     const card = user.username === "Guest" ? {last4: "", brand: ""} : user.paymentMethods[slot]
 
     const removeCard = () => {
+        // Only the saved cards
+        const remaining = user.paymentMethods.filter(method => method.last4 !== "")
+
+        if (hasSubscriptionActive && remaining.length === 1) {
+            dispatchFeedback(
+                setSnackbar({
+                  status: "error",
+                  message:
+                    "You cannot remove your last card with an active susbscription. Please add another card first.",
+                })
+              )
+            return
+        }
+
         setLoading(true)
     
         axios
@@ -246,8 +262,8 @@ export default function Payments({
                         label="Save Card For Future Use" labelPlacement="start" 
                         control={
                         <Switch
-                        disabled={user.paymentMethods[slot].last4 !== ""} 
-                        checked={user.paymentMethods[slot].last4 !== "" ? true : saveCard} 
+                        disabled={user.paymentMethods[slot].last4 !== "" || hasSubScriptionCart } 
+                        checked={user.paymentMethods[slot].last4 !== "" || hasSubScriptionCart ? true : saveCard} 
                         onChange={() => setSaveCard(!saveCard)} 
                         color="secondary" />} />
                     </Grid>

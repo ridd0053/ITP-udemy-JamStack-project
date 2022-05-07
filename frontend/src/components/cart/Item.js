@@ -7,9 +7,10 @@ import IconButton from "@material-ui/core/IconButton"
 import  useMediaQuery  from '@material-ui/core/useMediaQuery';
 
 import QtyButton from '../products-list/QtyButton'
+import SelectFrequency from "../ui/select-frequency"
 
 import { CartContext } from "../../contexts"
-import { removeFromCart } from "../../contexts/actions"
+import { removeFromCart, changeFrequency } from "../../contexts/actions"
 
 import Favorite from "../ui/favorite"
 import SubscribeIcon from '../../images/Subscription'
@@ -68,6 +69,9 @@ const useStyles = makeStyles(theme => ({
     },
     subscriptionChipRoot: {
         marginLeft: "1rem",
+        "&:hover": {
+            cursor: "pointer"
+        }
     },
     subscriptionChipLabel: {
         [theme.breakpoints.down('xs')]: {
@@ -86,10 +90,16 @@ export default function Item({ item }) {
     const classes = useStyles({ subscription: item.subscription });
     const theme = useTheme();
     const matchesXS = useMediaQuery(theme => theme.breakpoints.down('xs'))
+    const [frequency, setFrequency ] = useState(item.subscription)
     const { dispatchCart } = useContext(CartContext)
 
     const handleDelete = () => {
         dispatchCart(removeFromCart(item.variant, item.qty))
+    }
+
+    const handleFrequency = newFrequency => {
+        dispatchCart(changeFrequency(item.variant, newFrequency))
+        setFrequency(newFrequency)
     }
 
     const actions = [
@@ -126,9 +136,17 @@ export default function Item({ item }) {
                         hideCartButton />
                     </Grid>
                 </Grid>
-                <Grid item classes={{root: classes.chipWrapper}}>
-                    <Chip label={`€${item.variant.price}`} />
-                    {item.subscription ? <Chip label={`Every ${item.subscription}`} classes={{root: classes.subscriptionChipRoot, label: classes.subscriptionChipLabel}} /> : null}
+                <Grid item container alignItems="center" classes={{root: classes.chipWrapper}}>
+                    <Grid item>
+                        <Chip label={`€${item.variant.price}`} />
+                    </Grid>
+                    <Grid item>
+                        {item.subscription ? (
+                        <SelectFrequency value={frequency} setValue={handleFrequency} chip={
+                            <Chip label={`Every ${frequency}`} classes={{root: classes.subscriptionChipRoot, label: classes.subscriptionChipLabel}} />
+                        } />
+                        ) : null}
+                    </Grid>
                 </Grid>
                 <Grid item container justifyContent="space-between" alignItems="flex-end" >
                     <Grid item xs={7} sm>

@@ -2,9 +2,6 @@ import React, { useState, useContext }  from "react"
 import axios from "axios"
 import clsx from "clsx"
 import Typography from "@material-ui/core/Typography"
-import Chip from "@material-ui/core/Chip"
-import Select from "@material-ui/core/Select"
-import MenuItem from "@material-ui/core/MenuItem"
 import Grid from "@material-ui/core/Grid"
 import Button  from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -12,6 +9,7 @@ import Dialog  from "@material-ui/core/Dialog"
 import CircularProgress from "@material-ui/core/CircularProgress"
 
 import QtyButton from "../products-list/QtyButton"
+import SelectFrequency from "./select-frequency"
 
 import { CartContext, UserContext, FeedbackContext } from "../../contexts"
 import { setSnackbar, addToCart, setUser } from "../../contexts/actions"
@@ -72,28 +70,9 @@ const useStyles = makeStyles(theme => ({
         borderRadius: 0,
         backgroundColor: theme.palette.primary.main,
     },
-    chipRoot: {
-        backgroundColor: "#fff",
-        height: "3rem",
-        borderRadius: 50,
-        "&:hover": {
-            cursor: "pointer",
-        },
-    },
-    chipLabel: {
-        color: theme.palette.secondary.main,
-    },
-    select: {
-        "&.MuiSelect-select": {
-            padding: 0,
-        },
-    },
-    menu: {
-        backgroundColor: theme.palette.primary.main,
-        
-    },
-    menuItem: {
-        color: "#fff",
+
+    disabled: {
+        backgroundColor: `${theme.palette.grey[500]} !important`,   
     },
 }))
 
@@ -105,15 +84,17 @@ export default function Subscription({ size, stock, selectedVariant, variant, na
     const [qty, setQty] = useState(1)
     const { dispatchFeedback } = useContext(FeedbackContext)
     const { dispatchCart } = useContext(CartContext)
+    const { user } = useContext(UserContext)
 
-    const frequencies = [
-        "Week", 
-        "Two Weeks", 
-        "Month", 
-        "Three Months", 
-        "Six Months", 
-        "Year"
-    ]
+
+    const handleOpen = () => {
+        if (user.username === "Guest") {
+            dispatchFeedback(setSnackbar({status:"error", message:"You must be logged in to create a subscription"}))
+            return
+        } else {
+            setOpen(true)
+        }  
+    } 
 
     const handleCart = ( ) => {
         dispatchCart(addToCart(variant, qty, name, stock[selectedVariant].qty, frequency))
@@ -123,7 +104,7 @@ export default function Subscription({ size, stock, selectedVariant, variant, na
 
     return  (
         <>
-            <IconButton onClick={() => setOpen(true)} classes={{root: classes.iconButton}}>
+            <IconButton onClick={handleOpen} classes={{root: classes.iconButton}}>
                 <span className={classes.iconWrapper}>
                     <SubscriptionIcon />
                 </span>
@@ -149,24 +130,16 @@ export default function Subscription({ size, stock, selectedVariant, variant, na
                             <Typography variant="h4">Deliver Every</Typography>
                         </Grid>
                         <Grid item>
-                            <Select 
-                            value={frequency}
-                            disableUnderline 
-                            MenuProps={{classes: { paper: classes.menu }}}
-                            IconComponent={() => null}
-                            classes={{select: classes.select}}
-                            onChange={event => setFrequency(event.target.value)} 
-                            renderValue={selected => <Chip label={selected} classes={{root: classes.chipRoot, label: classes.chipLabel}} />} >
-                                 {frequencies.map(frequency => (
-                                    <MenuItem classes={{root: classes.menuItem}} key={frequency} value={frequency}>
-                                        {frequency}
-                                    </MenuItem>
-                                ))}
-                            </Select>
+                            <SelectFrequency value={frequency} setValue={setFrequency} />
                         </Grid>
                     </Grid>
                     <Grid item classes={{ root: classes.buttonWrapper }}>
-                            <Button onClick={handleCart} variant="contained" color="secondary" classes={{root: classes.cartButton}}>
+                            <Button 
+                            onClick={handleCart} 
+                            variant="contained" 
+                            color="secondary"
+                            disabled={qty === 0} 
+                            classes={{root: classes.cartButton, disabled: classes.disabled}}>
                                 <Typography variant="h1" classes={{root: classes.cartText}}>
                                         Add Subscription To Cart
                                 </Typography>

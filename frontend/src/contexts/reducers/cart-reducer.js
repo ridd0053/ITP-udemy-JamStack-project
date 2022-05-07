@@ -1,4 +1,4 @@
-import { ADD_TO_CART, REMOVE_FROM_CART, CLEAR_CART } from "../actions/action-types";
+import { ADD_TO_CART, REMOVE_FROM_CART, CLEAR_CART, CHANGE_FREQUENCY } from "../actions/action-types";
 
 export default function cartReducer(state, action) {
     let newCart = [...state]
@@ -34,6 +34,10 @@ export default function cartReducer(state, action) {
             }
             saveData(newCart)
             return newCart;
+        case CHANGE_FREQUENCY:
+            newCart[existingIndex].subscription = action.payload.frequency
+            saveData(newCart)
+            return newCart
         case CLEAR_CART:
             localStorage.removeItem("cart")
             return []

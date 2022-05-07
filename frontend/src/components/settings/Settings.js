@@ -27,8 +27,11 @@ const stripePromise = loadStripe(process.env.GATSBY_STRIPE_PK)
 export default function Settings({ setSelectedSetting }) {
     const classes = useStyles()
 
+    const { user, dispatchUser  } = useContext(UserContext)
     const [edit, setEdit] = useState(false)
     const [changesMade, setChangesMade] = useState(false)
+
+    const hasSubscriptionActive = user.subscriptions.length > 0
 
     const [detailValues, setDetailValues] = useState({
         name: "", 
@@ -63,14 +66,13 @@ export default function Settings({ setSelectedSetting }) {
 
     }, [locationSlot])
 
-    const { user, dispatchUser  } = useContext(UserContext)
 
     return  (
         <>
             <Grid container classes={{root: classes.sectionContainer}}>
                 <Details user={user} edit={edit} setChangesMade={setChangesMade} values={detailValues} setValues={setDetailValues} slot={detailSlot} setSlot={setDetailSlot} errors={detailErrors} setErrors={setDetailErrors} />
                 <Elements stripe={stripePromise}>
-                    <Payments user={user} edit={edit} slot={billingSlot} setSlot={setBillingSlot} />
+                    <Payments user={user} edit={edit} slot={billingSlot} setSlot={setBillingSlot} hasSubscriptionActive={hasSubscriptionActive} />
                 </Elements>
             </Grid>
             <Grid container classes={{root: clsx(classes.bottomRow, classes.sectionContainer)}}>

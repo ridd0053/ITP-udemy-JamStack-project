@@ -1,4 +1,4 @@
-import React, { useState, useEffect }  from "react"
+import React, { useState, useEffect, useContext }  from "react"
 import Grid from "@material-ui/core/Grid"
 import  useMediaQuery  from '@material-ui/core/useMediaQuery';
 import { Elements } from '@stripe/react-stripe-js'
@@ -14,6 +14,8 @@ import Confirmation from "./Confirmation"
 import ThankYou from "./ThankYou"
 import BillingConfirmation from "./BillingConfirmation"
 import validate from "../ui/Validate"
+
+import { CartContext } from "../../contexts";
 
 import { makeStyles } from "@material-ui/core/styles"
 
@@ -47,7 +49,11 @@ const stripePromise = loadStripe(process.env.GATSBY_STRIPE_PK)
 export default function CheckoutPortal({ user }) {
     const classes = useStyles()
     const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
+    const { cart } = useContext(CartContext);
     const [selectedStep, setSelectedStep] = useState(0)
+
+    const hasSubScriptionCart = cart.some(item => item.subscription)
+    const hasSubscriptionActive = user.subscriptions.length > 0
 
     const [detailValues, setDetailValues] = useState({name: "", email: "", phone:""})
     const [billingDetails, setBillingDetails] = useState({name: "", email: "", phone:""})
@@ -61,7 +67,7 @@ export default function CheckoutPortal({ user }) {
 
     const [cardSlot, setCardSlot] = useState(0)
     const [cardError, setCardError] = useState(true)
-    const [saveCard, setSaveCard ] = useState(false)
+    const [saveCard, setSaveCard ] = useState(hasSubScriptionCart)
     const [card, setCard ] = useState({brand: "", last4: ""})
 
     const [order, setOrder] = useState(null)
@@ -203,6 +209,8 @@ export default function CheckoutPortal({ user }) {
                     setCardError={setCardError}
                     selectedStep={selectedStep}
                     setCard={setCard}
+                    hasSubScriptionCart={hasSubScriptionCart}
+                    hasSubscriptionActive={hasSubscriptionActive}
                     checkout
                 />
             ),

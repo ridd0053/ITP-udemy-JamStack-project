@@ -13,6 +13,64 @@
   });
 
  const GUEST_ID = "62703e40b303b3478033f5c9";
+
+ const frequencies = [
+  {
+    label: "Week",
+    value: "one_week",
+    delivery: () => {
+      let now = new Date();
+      now.setDate(now.getDate() + 7);
+      return now;
+    },
+  },
+  {
+    label: "Two Weeks",
+    value: "two_weeks",
+    delivery: () => {
+      let now = new Date();
+      now.setDate(now.getDate() + 14);
+      return now;
+    },
+  },
+  {
+    label: "Month",
+    value: "one_month",
+    delivery: () => {
+      let now = new Date();
+      now.setMonth(now.getMonth() + 1);
+      return now;
+    },
+  },
+  {
+    label: "Three Months",
+    value: "three_months",
+    delivery: () => {
+      let now = new Date();
+      now.setMonth(now.getMonth() + 3);
+      return now;
+    },
+  },
+  {
+    label: "Six Months",
+    value: "six_months",
+    delivery: () => {
+      let now = new Date();
+      now.setMonth(now.getMonth() + 6);
+      return now;
+    },
+  },
+  {
+    label: "Year",
+    value: "annually",
+    delivery: () => {
+      let now = new Date();
+      now.setMonth(now.getMonth() + 12);
+      return now;
+    },
+  },
+];
+
  module.exports = {
     async process(ctx) {
       const {
@@ -132,23 +190,47 @@
             id: clientItem.variant.id,
           });
   
+          /* This is creating a subscription for the user. */
+          if (clientItem.subscription) {
+            const frequency = frequencies.find(
+              (option) => option.label === clientItem.subscription
+            );
+  
+            await strapi.services.subscription.create({
+              user: orderCustomer,
+              variant: clientItem.variant.id,
+              name: clientItem.name,
+              frequency: frequency.value,
+              last_delivery: new Date(),
+              next_delivery: frequency.delivery(),
+              quantity: clientItem.qty,
+              paymentMethod,
+              shippingAddress,
+              billingAddress,
+              shippingInfo,
+              billingInfo,
+            });
+          }
+  
           await strapi.services.variant.update(
             { id: clientItem.variant.id },
             { qty: serverItem.qty - clientItem.qty }
           );
         })
       );
-
+  
       if (saveCard && ctx.state.user) {
-        let newMethods = [...ctx.state.user.paymentMethods]
-        newMethods[cardSlot] = paymentMethod
-
+        let newMethods = [...ctx.state.user.paymentMethods];
+  
+        newMethods[cardSlot] = paymentMethod;
+  
         await strapi.plugins["users-permissions"].services.user.edit(
-          {id: orderCustomer}, 
-          {paymentMethods: newMethods}
-          )
+          { id: orderCustomer },
+          { paymentMethods: newMethods }
+        );
       }
   
+      /* Creating an order. */
       var order = await strapi.services.order.create({
         shippingAddress,
         billingAddress,
@@ -165,9 +247,9 @@
       });
   
       order = sanitizeEntity(order, { model: strapi.models.order });
-
+  
       const confirmation = await strapi.services.order.confirmationEmail(order);
-
+  
       await strapi.plugins["email"].services.email.send({
         to: order.billingInfo.email,
         subject: "VAR-X Order Confirmation",
@@ -180,13 +262,14 @@
   
       ctx.send({ order }, 200);
     },
+  
     async removeCard(ctx) {
       const { card } = ctx.request.body;
       const { stripeID } = ctx.state.user;
   
       const stripeMethods = await stripe.paymentMethods.list({
         customer: stripeID,
-        type: 'card',
+        type: "card",
       });
   
       const stripeCard = stripeMethods.data.find(
