@@ -175,7 +175,7 @@ export default function OderDetails({ orders, open, setOpen }) {
                 Items
             </Typography>
             {order?.items.map(item => (
-                <OrderDetailItem item={item} key={item.variant.key} />
+                <OrderDetailItem item={item} key={item.variant.id} />
             ))}
           </Grid>
         </Grid>

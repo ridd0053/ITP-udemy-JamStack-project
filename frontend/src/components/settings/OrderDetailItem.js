@@ -19,14 +19,16 @@ const useStyles = makeStyles(theme => ({
     chipRoot: {
         backgroundColor: theme.palette.primary.main,
       },
-      itemInfo: {
-          textAlign: "right",
-      }
+    itemInfo: {
+        textAlign: "right",
+    },
+    subscriptionChip: {
+        marginTop: "0.5rem",
+    },
 }))
 
 export default function OrderDetailItem({ item }) {
     const classes = useStyles()
-
     return  (
         <Grid item container classes={{root: classes.container}} justifyContent="space-between" alignItems="center">
             <Grid item>
@@ -48,7 +50,18 @@ export default function OrderDetailItem({ item }) {
                 Size:  {item.variant.size}
                 </Typography>
                 ): null }
-                <Chip label={`€ ${item.variant.price}`} classes={{root: classes.chipRoot}} />
+                <Grid container direction="column" >
+                    <Grid item>
+                        <Chip label={`€ ${item.variant.price}`} classes={{root: classes.chipRoot}} />
+                    </Grid>
+                </Grid>
+                {
+                    item.subscription ? (
+                        <Grid item classes={{root: classes.subscriptionChip}}> 
+                            <Chip label={`Every ${item.subscription}`} classes={{root: classes.chipRoot}} />
+                        </Grid>
+                    ) : null
+                }
             </Grid>
         </Grid>
     )

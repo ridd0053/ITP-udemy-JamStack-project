@@ -5,4 +5,21 @@
  * to customize this controller
  */
 
-module.exports = {};
+ const { sanitizeEntity } = require("strapi-utils");
+
+ module.exports = {
+   async userSubscriptions(ctx) {
+     let subscriptions = await strapi.services.subscription.find({
+       user: ctx.state.user.id,
+     });
+ 
+     subscriptions.map((subscription) => {
+       delete subscription.user;
+       subscription = sanitizeEntity(subscription, {
+         model: strapi.models.subscription,
+       });
+     });
+ 
+     ctx.send(subscriptions, 200);
+   },
+ };

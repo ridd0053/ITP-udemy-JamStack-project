@@ -10,6 +10,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Settings from "./Settings"
 import OrderHistory from "./OrderHistory"
 import Favorites from "./Favorites"
+import Subscriptions from "./Subscriptions"
 
 import { UserContext } from "../../contexts"
 import { setUser } from '../../contexts/actions'
@@ -95,7 +96,7 @@ export default function SettingsPortal() {
         {label: "Settings", icon: settingsIcon, component: Settings, large: true},
         {label: "Order history", icon: orderHistoryIcon, component: OrderHistory},
         {label: "Favorites", icon: favoritesIcon, component: Favorites},
-        {label: "Subscription", icon: subscriptionIcon},
+        {label: "Subscription", icon: subscriptionIcon, component: Subscriptions},
     ]
 
     const handleClick = setting => {
