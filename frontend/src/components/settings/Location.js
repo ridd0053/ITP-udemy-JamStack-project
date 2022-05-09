@@ -85,6 +85,13 @@ export default function Location({
     const [loading, setLoading] = useState(false)
     const { dispatchFeedback } = useContext(FeedbackContext)
 
+    const handleValues = values  => {
+        if (billing === slot && !noSlots) {
+            setBillingValues(values)
+        }
+        setValues(values)
+    }
+
     const getLocation = () => {
         setLoading(true)
 
@@ -92,7 +99,7 @@ export default function Location({
         ).then( response => {
             setLoading(false)
             const {place_name, admin_name1} = response.data.records[0].fields
-            setValues({...values, city: place_name, state: admin_name1})
+            handleValues({...values, city: place_name, state: admin_name1})
 
         }).catch(error => {
             setLoading(false)
@@ -117,7 +124,7 @@ export default function Location({
             if (values.city) return
             getLocation()
         } else if ( values.zip.length < 4 && values.city) {
-            setValues({...values, city:"", state:""})
+            handleValues({...values, city:"", state:""})
         }
         
     }, [values])
@@ -161,7 +168,7 @@ export default function Location({
             <Fields 
                 fields={fields} 
                 values={billing === slot && !noSlots ? billingValues : values} 
-                setValues={billing === slot && !noSlots ? setBillingValues : setValues} 
+                setValues={handleValues} 
                 errors={errors} 
                 setErrors={setErrors}
                 isWhite={true}

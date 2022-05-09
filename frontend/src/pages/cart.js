@@ -1,8 +1,8 @@
 import React, { useState, useContext }  from "react"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
-import Button  from "@material-ui/core/Button"
-import IconButton from "@material-ui/core/IconButton"
+import useMediaQuery  from "@material-ui/core/useMediaQuery"
+
 
 import Layout from "../components/ui/layout"
 import CartItems from "../components/cart/CartItems"
@@ -28,6 +28,10 @@ const useStyles = makeStyles(theme => ({
 export default function Cart() {
     const classes = useStyles()
     const { user } = useContext(UserContext)
+    const matchesMD = useMediaQuery(theme => theme.breakpoints.down('md'))
+
+    const items = <CartItems/>
+    const checkoutPortal = <CheckoutPortal user={user} />
 
     return  (
         <Layout>
@@ -38,8 +42,8 @@ export default function Cart() {
                     </Typography>
                 </Grid>
                 <Grid item container>
-                    <CartItems/>
-                    <CheckoutPortal user={user} />
+                    {matchesMD ? checkoutPortal : items}
+                    {matchesMD ? items : checkoutPortal}
                 </Grid> 
             </Grid>
         </Layout>

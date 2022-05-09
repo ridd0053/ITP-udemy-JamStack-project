@@ -6,6 +6,7 @@ import Button  from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Chip from "@material-ui/core/Chip"
 import { useQuery } from "@apollo/client"
+import { Link } from "gatsby"
 
 import explore from "../../images/explore.svg"
 import frame from "../../images/product-frame-grid.svg"
@@ -109,6 +110,8 @@ export default function FeatureProduct({ node, index, matchesMD, expandend, setE
         }
     }, [data])
 
+    const hasStyles = node.variants.some(variant => variant.style !== null)
+
     return (
       <Grid item container
       classes={{root: classes.productContainer}} 
@@ -135,7 +138,7 @@ export default function FeatureProduct({ node, index, matchesMD, expandend, setE
                       <Chip classes={{root: classes.chipRoot, label: classes.chipLabel}} label={`€ ${node.variants[0].price}`}/>
                   </Grid>
                   <Grid item classes={{root: classes.exploreContainer}}>
-                      <Button classes={{root: classes.exploreButton}}>
+                      <Button component={Link} to={`/${node.category.name.toLowerCase()}/${node.name.split(" ")[0].toLowerCase()}?color=${encodeURIComponent(node.variants[0].color)}${hasStyles ? `&style=${node.variants[0].style}` :""}`} classes={{root: classes.exploreButton}}>
                           <Typography variant="h5">
                               Details
                           </Typography>

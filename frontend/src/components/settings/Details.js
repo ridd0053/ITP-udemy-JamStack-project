@@ -172,6 +172,13 @@ export default function Details({
         fields = [ {name: name_phone.name, email: email_password.email, phone: name_phone.phone} ]
     }
 
+    const handleValues = values  => {
+        if (billing === slot && !noSlots) {
+            setBillingValues(values)
+        }
+        setValues(values)
+    }
+
 
     return  (
         <Grid item container direction="column" lg={checkout ? 12 : 6} xs={12} alignItems="center" justifyContent="center" classes={{root: classes.detailsContainer}}>
@@ -186,7 +193,7 @@ export default function Details({
                     <Fields
                     fields={pair} 
                     values={billing === slot && !noSlots ? billingValues : values} 
-                    setValues={billing === slot && !noSlots ? setBillingValues : setValues} 
+                    setValues={handleValues} 
                     errors={errors} 
                     setErrors={setErrors}
                     isWhite={true}

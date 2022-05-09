@@ -53,7 +53,7 @@ export default function CheckoutPortal({ user }) {
     const [selectedStep, setSelectedStep] = useState(0)
 
     const hasSubScriptionCart = cart.some(item => item.subscription)
-    const hasSubscriptionActive = user.subscriptions.length > 0
+    const hasSubscriptionActive = user.subscriptions?.length > 0
 
     const [detailValues, setDetailValues] = useState({name: "", email: "", phone:""})
     const [billingDetails, setBillingDetails] = useState({name: "", email: "", phone:""})

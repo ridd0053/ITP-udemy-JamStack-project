@@ -161,7 +161,7 @@ export default function Confirmation({
     const shipping = shippingOptions.find(option => option.label === selectedShipping)
 
     const subtotal = cart.reduce((total, item) => total + item.variant.price * item.qty, 0)
-    const tax = subtotal * 0.21
+    const tax = (subtotal + shipping?.price) * 0.21
 
     const firstFields = [
         {value: detailValues.name, 
